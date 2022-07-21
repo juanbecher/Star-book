@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* C77500 */
+body{
+    /* background-color: #222222; */
+    background: url('/back3.png') no-repeat center center fixed; 
+    background-size: cover;
+    margin: auto;
+    color: white;
+}
