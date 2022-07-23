@@ -14,4 +14,16 @@ function defineNextConfig(config) {
 
 export default defineNextConfig({
   reactStrictMode: true,
+  images: {
+    domains: ['books.google.com'],
+  }
 });
+
+// const nextConfig = {
+//   reactStrictMode: true,
+//   compiler: {
+//     styledComponents: true,
+//   }
+// }
+
+// module.exports = nextConfig
