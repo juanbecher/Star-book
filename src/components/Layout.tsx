@@ -7,7 +7,19 @@ import { ThemeProvider, createTheme} from '@mui/material/styles';
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
+    primary: {
+      // light: will be calculated from palette.primary.main,
+      main: '#F0B27A',
+      // dark: will be calculated from palette.primary.main,
+      // contrastText: will be calculated to contrast with palette.primary.main
+    },
+    secondary: {
+      main: '#E8DAEF'
+    },
+    
   },
+  
+  
 });
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
