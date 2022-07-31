@@ -8,14 +8,13 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import mybook from "./mybook";
+import { useSession } from "next-auth/react";
+
 
 
 interface Book {
@@ -38,26 +37,12 @@ interface Book {
   }
   
 }
-// "bybooks": {
-//   "wantToRead": ["HPJbRQAACAAJ","Yz8Fnw0PlEQC"],
-//   "reading" : ["MAvEygEACAAJ"],
-//   "read": ["0DqIbtgHPFkC"]
-// }
 interface User {
   name: string,
   mybooks: {
     [key: string]: string
   }
 }
-// let User: User = {
-//   "name": "Juan",
-//   "mybooks": {
-//     "HPJbRQAACAAJ": "wantToRead",
-//     "Yz8Fnw0PlEQC": "wantToRead",
-//     "MAvEygEACAAJ": "reading",
-//     "0DqIbtgHPFkC": "read",
-//   }
-// }
 
 const Home: React.FC<{initial_books: Book[]}> = ({initial_books}) => {
   const [books, setBooks] = useState(initial_books)
@@ -71,7 +56,7 @@ const Home: React.FC<{initial_books: Book[]}> = ({initial_books}) => {
       "0DqIbtgHPFkC": "read",
     }
   })
-
+  const {data: session} = useSession()
   console.log(user_test)
   // const hello = trpc.useQuery(["example.hello", { text: "from tRPC" }]);
   
@@ -105,6 +90,7 @@ const Home: React.FC<{initial_books: Book[]}> = ({initial_books}) => {
       {/* <h1 className="text-5xl md:text-[3rem] leading-normal font-extrabold text-gray-600 text-center">
           Search your favourite book!
       </h1> */}
+      
       <div className="h-10"></div>
       <div className="w-80 flex justify-center mx-auto" >
       <TextField fullWidth id="outlined-basic" label="Search book" variant="outlined" inputProps={{ style: inputStyle }} onChange={handleSearch} />
@@ -143,7 +129,7 @@ const Home: React.FC<{initial_books: Book[]}> = ({initial_books}) => {
 
               {/* Rating */}
                <div className="flex items-center my-1 text-xs text-slate-400">
-                <Rating name="size-small" defaultValue={book.volumeInfo.averageRating} size="small" precision={0.5}/>
+                <Rating name="size-small" value={book.volumeInfo.averageRating} size="small" precision={0.5}/>
                 {book.volumeInfo.averageRating && <p className="px-5">{book.volumeInfo.averageRating} avg rate</p>}
                 {book.volumeInfo.ratingsCount && <p className="px-5">{book.volumeInfo.ratingsCount} votes</p>}
               </div>

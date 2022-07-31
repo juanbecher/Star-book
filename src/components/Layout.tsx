@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { ThemeProvider, createTheme} from '@mui/material/styles';
+import { useSession, signIn, signOut } from "next-auth/react";
+import NavbarUser from "./NavbarUser";
 
 const darkTheme = createTheme({
   palette: {
@@ -24,6 +26,7 @@ const darkTheme = createTheme({
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const router = useRouter()
+    const {data: session} = useSession()
   return (
     <>
     <Head>
@@ -52,6 +55,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <a className={router.pathname=='/mybook' ? "p-5 transition hover:duration-300 bg-amber-700" : "p-5 transition hover:duration-300 hover:bg-amber-700"}>My Books</a>
           </Link>
         </nav>
+        {/* User */}
+        <NavbarUser/>
+       
       </div>
 
       {/* Content */}
