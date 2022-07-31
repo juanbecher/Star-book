@@ -5,6 +5,7 @@ import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import { SessionProvider } from "next-auth/react";
 import "../styles/globals.css";
+import { StyledEngineProvider } from "@mui/material";
 
 const MyApp: AppType = ({
   Component,
@@ -12,7 +13,10 @@ const MyApp: AppType = ({
 }) => {
   return (
     <SessionProvider session={session}>
+      <StyledEngineProvider injectFirst>
       <Component {...pageProps} />
+      </StyledEngineProvider>
+      
     </SessionProvider>
   );
 };

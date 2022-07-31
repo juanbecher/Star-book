@@ -108,6 +108,7 @@ const Home: React.FC<{initial_books: Book[]}> = ({initial_books}) => {
               image={book.volumeInfo.imageLinks? book.volumeInfo.imageLinks.thumbnail: "/imagen.png"} 
               alt="Img description"
               className="w-1/4 p-4 rounded-lg"
+              // sx={{width: 25}}
             />
             <div className="w-3/4 flex flex-col">
             <CardContent className="px-2 pt-2 pb-0">
