@@ -12,8 +12,7 @@ export async function searchBooks(
   startIndex: number = 0
 ): Promise<SearchBooksResponse> {
   // Use server-side key if available (for SSR), otherwise use client-side key
-  const apiKey =
-    process.env.GOOGLE_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "";
+  const apiKey = process.env.GOOGLE_API_KEY || "";
 
   if (!apiKey) {
     throw new Error("Google Books API key is not configured");
