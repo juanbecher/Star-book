@@ -10,9 +10,6 @@ datasource db {
     url      = env("DATABASE_URL")
 }
 
-model Example {
-    id String @id @default(cuid())
-}
 
 // Necessary for Next auth
 model Account {
@@ -49,6 +46,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    books         UserXBook[]
 }
 
 model VerificationToken {
@@ -57,4 +55,12 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+model UserXBook{
+    id String @id @default(cuid())
+    userId String
+    user User @relation(fields: [userId], references: [id])
+    bookId String
+    state String
 }
