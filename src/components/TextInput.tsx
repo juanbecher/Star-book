@@ -1,15 +1,4 @@
-import TextField from "@mui/material/TextField";
-import React from "react";
-
-interface TextInputProps {
-  id?: string;
-  label: string;
-  value?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  fullWidth?: boolean;
-  variant?: "outlined" | "filled" | "standard";
-}
+import TextField, { TextFieldProps } from "@mui/material/TextField";
 
 export const TextInput = ({
   id,
@@ -19,7 +8,8 @@ export const TextInput = ({
   placeholder,
   fullWidth = true,
   variant = "outlined",
-}: TextInputProps) => {
+  ...props
+}: TextFieldProps) => {
   return (
     <TextField
       id={id}
@@ -29,6 +19,7 @@ export const TextInput = ({
       placeholder={placeholder}
       fullWidth={fullWidth}
       variant={variant}
+      {...props}
     />
   );
 };

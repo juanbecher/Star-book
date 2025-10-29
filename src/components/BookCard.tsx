@@ -1,19 +1,11 @@
-import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
+import { useRouter } from "next/router";
+import Image from "next/image";
 import Rating from "@mui/material/Rating";
-import Select from "@mui/material/Select";
-import Typography from "@mui/material/Typography";
 import BusinessIcon from "@mui/icons-material/Business";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import PersonIcon from "@mui/icons-material/Person";
-import { useState } from "react";
-import { trpc } from "../utils/trpc";
-import { useRouter } from "next/router";
+import { ReadingStatusSelect } from "./ReadingStatusSelect";
 
 export interface Book {
   id: string;
@@ -37,55 +29,40 @@ export interface Book {
 export const BookCard = ({ book }: { book: Book }) => {
   const router = useRouter();
 
-  const [bookState, setBookState] = useState<string>("");
-  const bookMutation = trpc.useMutation(["books.save-user-book"]);
-
-  const handleStateChange = (event: { target: { value: unknown } }) => {
-    const newState = event.target.value as string;
-    setBookState(newState);
-
-    if (newState) {
-      bookMutation.mutate({
-        bookId: book.id,
-        book_state: newState,
-      });
-    }
-  };
-
   const handleCardClick = () => {
     router.push(`/book/${book.id}`);
   };
 
   return (
-    <Card sx={{ height: 200, display: "flex" }}>
-      <CardMedia
-        component="img"
-        image={
-          book.volumeInfo.imageLinks
-            ? book.volumeInfo.imageLinks.thumbnail
-            : "/imagen.png"
-        }
-        alt="Img description"
-        className="w-1/4 p-4 rounded-lg cursor-pointer"
-        onClick={handleCardClick}
-      />
+    <div className="h-[200px] flex rounded-lg bg-stone-800 shadow-sm">
+      <div className="p-2 m-auto">
+        <Image
+          src={
+            book.volumeInfo.imageLinks
+              ? book.volumeInfo.imageLinks.thumbnail
+              : "/imagen.png"
+          }
+          alt="Img description"
+          width={120}
+          height={180}
+          className="rounded-lg cursor-pointer object-cover w-full h-full"
+          onClick={handleCardClick}
+        />
+      </div>
       <div className="w-3/4 flex flex-col">
-        <CardContent className="px-2 pt-2 pb-0">
+        <div className="px-2 pt-2 pb-0">
           <div className="grid gap-2">
-            <Typography
-              gutterBottom
-              variant="h6"
-              component="div"
-              className="m-0 overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer hover:text-amber-500"
+            <h6
+              className="m-0 text-base font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer hover:text-amber-500"
               onClick={handleCardClick}
             >
               {book.volumeInfo.title}
-            </Typography>
+            </h6>
 
             {/* Author */}
             <div className="flex items-center text-slate-400">
-              <PersonIcon sx={{ fontSize: 14, marginRight: 0.5 }} />
-              <p>
+              <PersonIcon className="text-amber-500 mr-2 text-sm" />
+              <p className="text-sm">
                 {book.volumeInfo.authors
                   ? book.volumeInfo.authors[0]
                   : "Unknown author"}
@@ -96,7 +73,7 @@ export const BookCard = ({ book }: { book: Book }) => {
             <div className="grid grid-cols-3 justify-between mt-1 text-slate-300 text-xs overflow-hidden text-ellipsis whitespace-nowrap">
               {book.volumeInfo.publisher && (
                 <div className="flex items-center">
-                  <BusinessIcon sx={{ fontSize: 14, marginRight: 0.5 }} />
+                  <BusinessIcon className="text-amber-500 mr-2 text-sm" />
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {book.volumeInfo.publisher
                       ? book.volumeInfo.publisher
@@ -106,8 +83,8 @@ export const BookCard = ({ book }: { book: Book }) => {
               )}
               {book.volumeInfo.publishedDate && (
                 <div className="flex items-center mx-1">
-                  <CalendarTodayIcon sx={{ fontSize: 14, marginRight: 0.5 }} />
-                  <p>
+                  <CalendarTodayIcon className="text-amber-500 mr-2 text-sm" />
+                  <p className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {book.volumeInfo.publishedDate
                       ? book.volumeInfo.publishedDate
                       : "Unknown published date"}
@@ -116,8 +93,8 @@ export const BookCard = ({ book }: { book: Book }) => {
               )}
               {book.volumeInfo.pageCount && (
                 <div className="flex items-center mx-1">
-                  <MenuBookIcon sx={{ fontSize: 14, marginRight: 0.5 }} />
-                  <p>{book.volumeInfo.pageCount}</p>
+                  <MenuBookIcon className="text-amber-500 mr-2 text-sm" />
+                  <p>{book.volumeInfo.pageCount} pages</p>
                 </div>
               )}
             </div>
@@ -128,6 +105,7 @@ export const BookCard = ({ book }: { book: Book }) => {
                 value={book.volumeInfo.averageRating}
                 size="small"
                 precision={0.5}
+                readOnly
               />
               {book.volumeInfo.averageRating && (
                 <p className="px-5">{book.volumeInfo.averageRating} avg rate</p>
@@ -137,27 +115,13 @@ export const BookCard = ({ book }: { book: Book }) => {
               )}
             </div>
           </div>
-        </CardContent>
-        <CardActions className=" mt-auto mb-1 px-1 py-0">
-          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-            <Select
-              labelId="demo-simple-select-filled-label"
-              id="demo-simple-select-filled"
-              name={book.id}
-              value={bookState}
-              onChange={handleStateChange}
-              displayEmpty
-            >
-              <MenuItem value="">
-                <em>Select status</em>
-              </MenuItem>
-              <MenuItem value={"wantToRead"}>Want to read</MenuItem>
-              <MenuItem value={"reading"}>Reading</MenuItem>
-              <MenuItem value={"read"}>Read</MenuItem>
-            </Select>
-          </FormControl>
-        </CardActions>
+        </div>
+        <div className="mt-auto mb-1 px-1 py-0">
+          <div className="m-1 min-w-[120px]">
+            <ReadingStatusSelect bookId={book.id} />
+          </div>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 };

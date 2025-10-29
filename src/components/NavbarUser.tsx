@@ -1,9 +1,10 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import React, { useState } from "react";
 import Avatar from "@mui/material/Avatar";
-import { Button, ListItemIcon, Menu, MenuItem } from "@mui/material";
+import { ListItemIcon, Menu, MenuItem } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import Logout from "@mui/icons-material/Logout";
+import Button from "./Button";
 
 const NavbarUser = () => {
   const { data: session } = useSession();
@@ -47,7 +48,7 @@ const NavbarUser = () => {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
-        sx={{ borderRadius: "50%" }}
+        className="rounded-full"
       >
         <Avatar
           alt={session.user?.name || session.user?.email || "User"}
@@ -64,13 +65,6 @@ const NavbarUser = () => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem disabled>
-          <ListItemIcon>
-            <PersonIcon fontSize="small" />
-          </ListItemIcon>
-          Profile
-        </MenuItem>
-
         <MenuItem onClick={handleSignOut}>
           <ListItemIcon>
             <Logout fontSize="small" />
