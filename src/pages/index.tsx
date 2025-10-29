@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import { ErrorMessage } from "../components/ErrorMessage";
 import { Loading } from "../components/Loading";
 import { TextInput } from "../components/TextInput";
+import { InfiniteScroll } from "../components/InfiniteScroll";
 import { useBookSearch } from "../hooks/useBookSearch";
 import { useDebounce } from "../hooks/useDebounce";
 import { DEFAULT_SEARCH_QUERY } from "../constants/books";
@@ -17,10 +18,14 @@ const Home = ({ initialBooks }: HomeProps) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  const { books, isSearching, searchError } = useBookSearch(
-    debouncedSearchQuery,
-    initialBooks
-  );
+  const {
+    books,
+    isSearching,
+    searchError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useBookSearch(debouncedSearchQuery, initialBooks);
 
   const sortedBooks = [...books].sort(
     (a: Book, b: Book) =>
@@ -50,11 +55,24 @@ const Home = ({ initialBooks }: HomeProps) => {
             </p>
           </div>
         ) : (
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-            {sortedBooks.map((book: Book) => (
-              <BookCard key={book.id} book={book} />
-            ))}
-          </div>
+          <InfiniteScroll
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={fetchNextPage}
+            loadingComponent={<Loading />}
+            endMessage={
+              sortedBooks.length > 0 ? (
+                <p className="text-slate-400 text-sm">No more books to load</p>
+              ) : null
+            }
+            threshold={0.1}
+          >
+            <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {sortedBooks.map((book: Book) => (
+                <BookCard key={book.id} book={book} />
+              ))}
+            </div>
+          </InfiniteScroll>
         )}
       </div>
     </Layout>
@@ -65,7 +83,8 @@ export default Home;
 
 export async function getServerSideProps() {
   try {
-    const initialBooks = await searchBooks(DEFAULT_SEARCH_QUERY);
+    const result = await searchBooks(DEFAULT_SEARCH_QUERY);
+    const initialBooks = result.items || [];
 
     return {
       props: {

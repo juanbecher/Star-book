@@ -1,11 +1,15 @@
-import { useQuery } from "react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Book } from "../components/BookCard";
-import { searchBooks } from "../utils/books";
+import { searchBooks, SearchBooksResponse } from "../utils/books";
+import { MAX_RESULTS } from "../constants/books";
 
 interface UseBookSearchReturn {
   books: Book[];
   isSearching: boolean;
   searchError: string | null;
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
 }
 
 export function useBookSearch(
@@ -15,24 +19,35 @@ export function useBookSearch(
   const trimmedQuery = query.trim();
   const shouldSearch = trimmedQuery.length > 0;
 
-  const { data, isLoading, error } = useQuery<Book[], Error>(
-    ["books", trimmedQuery],
-    () => searchBooks(trimmedQuery),
-    {
-      enabled: shouldSearch,
-      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-      cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-      retry: 1,
-      onError: (error) => {
-        console.error("Search error:", error);
-      },
-    }
-  );
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery<SearchBooksResponse, Error>({
+    queryKey: ["books", trimmedQuery],
+    queryFn: ({ pageParam = 0 }) =>
+      searchBooks(trimmedQuery, pageParam as number),
+    enabled: shouldSearch,
+    initialPageParam: 0,
+    getNextPageParam: (
+      lastPage: SearchBooksResponse,
+      allPages: SearchBooksResponse[]
+    ) => {
+      if (!lastPage.hasMore) return undefined;
+      return allPages.length * MAX_RESULTS;
+    },
+  });
 
-  // Use initialBooks when query is empty, otherwise use fetched data
-  const books = shouldSearch ? data || [] : initialBooks;
+  // Flatten all pages into a single array of books
+  const books = shouldSearch
+    ? data?.pages.flatMap((page: SearchBooksResponse) => page.items) || []
+    : initialBooks;
 
   // Determine error message
+  console.log(error);
   const searchError = error
     ? "Failed to search books. Please try again."
     : null;
@@ -41,5 +56,8 @@ export function useBookSearch(
     books,
     isSearching: isLoading && shouldSearch,
     searchError,
+    fetchNextPage,
+    hasNextPage: hasNextPage ?? false,
+    isFetchingNextPage,
   };
 }
