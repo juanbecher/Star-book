@@ -82,7 +82,12 @@ export default Home;
 
 export async function getServerSideProps() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+      ? process.env.NEXT_PUBLIC_BASE_URL
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
     const response = await fetch(
       `${baseUrl}/api/books/search?q=${encodeURIComponent(
         DEFAULT_SEARCH_QUERY
