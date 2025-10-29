@@ -5,7 +5,7 @@ import Rating from "@mui/material/Rating";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
 import { formatDistanceToNow } from "date-fns";
-import Button from "./Button";
+import Button from "./ui/Button";
 
 interface Comment {
   id: string;

@@ -4,7 +4,7 @@ import Avatar from "@mui/material/Avatar";
 import { ListItemIcon, Menu, MenuItem } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import Logout from "@mui/icons-material/Logout";
-import Button from "./Button";
+import Button from "./ui/Button";
 
 const NavbarUser = () => {
   const { data: session } = useSession();

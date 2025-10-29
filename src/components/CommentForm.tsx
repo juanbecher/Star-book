@@ -3,8 +3,8 @@ import { trpc } from "../utils/trpc";
 import { useSession } from "next-auth/react";
 import Rating from "@mui/material/Rating";
 import Box from "@mui/material/Box";
-import { TextInput } from "./TextInput";
-import Button from "./Button";
+import { TextInput } from "./ui/TextInput";
+import Button from "./ui/Button";
 
 interface CommentFormProps {
   bookId: string;
