@@ -1,11 +1,10 @@
-import { useRouter } from "next/router";
-import Image from "next/image";
-import Rating from "@mui/material/Rating";
 import BusinessIcon from "@mui/icons-material/Business";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import PersonIcon from "@mui/icons-material/Person";
-import { ReadingStatusSelect } from "./ReadingStatusSelect";
+import Rating from "@mui/material/Rating";
+import Image from "next/image";
+import { useRouter } from "next/router";
 
 export interface Book {
   id: string;
@@ -114,11 +113,6 @@ export const BookCard = ({ book }: { book: Book }) => {
                 <p className="px-5">{book.volumeInfo.ratingsCount} votes</p>
               )}
             </div>
-          </div>
-        </div>
-        <div className="mt-auto mb-1 px-1 py-0">
-          <div className="m-1 min-w-[120px]">
-            <ReadingStatusSelect bookId={book.id} />
           </div>
         </div>
       </div>

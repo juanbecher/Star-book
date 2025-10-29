@@ -1,8 +1,6 @@
 import { createRouter } from "./context";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { resolve } from "path";
-import { searchBooks } from "../../utils/books";
 
 export const booksRouter = createRouter()
   .query("get-user-books", {
@@ -18,14 +16,12 @@ export const booksRouter = createRouter()
         where: {
           userId: ctx.session.user.id,
         },
+        include: {
+          book: true,
+        },
       });
 
       return books;
-    },
-  })
-  .query("getAll", {
-    async resolve({ ctx }) {
-      return await ctx.prisma.user.findMany();
     },
   })
   .mutation("save-user-book", {
@@ -40,13 +36,37 @@ export const booksRouter = createRouter()
           code: "UNAUTHORIZED",
         });
       }
-      const user_book = await ctx.prisma.userXBook.create({
-        data: {
-          userId: ctx.session?.user?.id,
+
+      // Check if user already has this book
+      const existingUserBook = await ctx.prisma.userXBook.findFirst({
+        where: {
+          userId: ctx.session.user.id,
           bookId: input.bookId,
-          state: input.book_state,
         },
       });
+
+      let user_book;
+      if (existingUserBook) {
+        // Update existing record
+        user_book = await ctx.prisma.userXBook.update({
+          where: {
+            id: existingUserBook.id,
+          },
+          data: {
+            state: input.book_state,
+          },
+        });
+      } else {
+        // Create new record
+        user_book = await ctx.prisma.userXBook.create({
+          data: {
+            userId: ctx.session.user.id,
+            bookId: input.bookId,
+            state: input.book_state,
+          },
+        });
+      }
+
       return user_book;
     },
   })
@@ -129,6 +149,16 @@ export const booksRouter = createRouter()
                   createdAt: "desc",
                 },
               },
+              userBooks: ctx.session?.user?.id
+                ? {
+                    where: {
+                      userId: ctx.session.user.id,
+                    },
+                    select: {
+                      state: true,
+                    },
+                  }
+                : false,
             },
           });
         } catch (error) {
@@ -207,5 +237,27 @@ export const booksRouter = createRouter()
       });
 
       return { success: true };
+    },
+  })
+  .query("get-user-book-status", {
+    input: z.object({
+      bookId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      if (!ctx.session || !ctx.session.user?.id) {
+        return { state: "" };
+      }
+
+      const userBook = await ctx.prisma.userXBook.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+          bookId: input.bookId,
+        },
+        select: {
+          state: true,
+        },
+      });
+
+      return { state: userBook?.state || "" };
     },
   });

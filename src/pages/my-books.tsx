@@ -1,5 +1,7 @@
 import Layout from "../components/Layout";
+import { Loading } from "../components/ui/Loading";
 import { trpc, inferQueryOutput } from "../utils/trpc";
+import Link from "next/link";
 
 type UserBook = inferQueryOutput<"books.get-user-books">[number];
 
@@ -10,7 +12,7 @@ const MyBooks = () => {
     return (
       <Layout>
         <div className="flex justify-center items-center min-h-[400px]">
-          <p className="text-slate-400">Loading your books...</p>
+          <Loading />
         </div>
       </Layout>
     );
@@ -51,10 +53,24 @@ const MyBooks = () => {
           {data.map((book: UserBook) => (
             <div
               key={book.id}
-              className="bg-slate-800 rounded-lg p-4 flex justify-between items-center"
+              className="bg-stone-800 rounded-lg p-4 flex justify-between items-center"
             >
               <div>
-                <p className="text-slate-200 font-medium">{book.bookId}</p>
+                <Link href={`/book/${book.book.googleBooksId}`}>
+                  <a className="text-slate-200 font-medium hover:text-amber-600 transition-colors">
+                    {book.book.title}
+                  </a>
+                </Link>
+                {book.book.subtitle && (
+                  <p className="text-slate-400 text-sm mt-1">
+                    {book.book.subtitle}
+                  </p>
+                )}
+                {book.book.authors && book.book.authors.length > 0 && (
+                  <p className="text-slate-500 text-sm mt-1">
+                    by {book.book.authors.join(", ")}
+                  </p>
+                )}
               </div>
               <div>
                 <span className="inline-block px-3 py-1 rounded-full bg-amber-600 text-white text-sm capitalize">
