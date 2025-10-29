@@ -19,7 +19,7 @@ const darkTheme = createTheme({
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/mybook", label: "My Books" },
+  { href: "/my-books", label: "My Books" },
 ] as const;
 
 interface LayoutProps {
@@ -30,8 +30,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const router = useRouter();
 
   const getNavLinkClassName = (pathname: string) => {
-    const baseClasses = "p-5 transition hover:duration-300";
-    const activeClasses = "bg-amber-700";
+    const baseClasses = "p-2 transition hover:duration-300 cursor-pointer";
+    const activeClasses = "bg-amber-700 border-b-2 border-white";
     const inactiveClasses = "hover:bg-amber-700";
 
     return router.pathname === pathname
@@ -51,24 +51,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </Head>
       <ThemeProvider theme={darkTheme}>
         <main>
-          <header className="flex justify-evenly bg-amber-800 text-white">
-            <Link href="/" className="italic text-2xl my-auto">
-              StarBook
-            </Link>
+          <header className=" bg-amber-800 text-white px-8 py-4">
+            <div className="flex justify-between items-center max-w-screen-xl mx-auto my-0">
+              <Link href="/" className="italic text-2xl my-auto">
+                StarBook
+              </Link>
 
-            <nav className="flex">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={getNavLinkClassName(link.href)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
+              <nav className="flex gap-4">
+                {NAV_LINKS.map((link) => (
+                  <Link key={link.href} href={link.href}>
+                    <div className={getNavLinkClassName(link.href)}>
+                      {link.label}
+                    </div>
+                  </Link>
+                ))}
+              </nav>
 
-            <NavbarUser />
+              <NavbarUser />
+            </div>
           </header>
 
           <div className="max-w-screen-xl mx-auto my-0 px-4">{children}</div>
