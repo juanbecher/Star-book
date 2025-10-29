@@ -6,10 +6,9 @@ generator client {
 }
 
 datasource db {
-    provider = "postgres" // NOTE: sqlite does not work with NextAuth.js
+    provider = "postgres"
     url      = env("DATABASE_URL")
 }
-
 
 // Necessary for Next auth
 model Account {
@@ -39,14 +38,15 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String      @id @default(cuid())
     name          String?
-    email         String?   @unique
+    email         String?     @unique
     emailVerified DateTime?
     image         String?
     accounts      Account[]
     sessions      Session[]
     books         UserXBook[]
+    comments      Comment[]
 }
 
 model VerificationToken {
@@ -57,10 +57,43 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
-model UserXBook{
-    id String @id @default(cuid())
+model UserXBook {
+    id     String @id @default(cuid())
     userId String
-    user User @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id])
     bookId String
-    state String
+    book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+    state  String
+}
+
+model Book {
+    id            String      @id @default(cuid())
+    googleBooksId String      @unique
+    title         String
+    subtitle      String?
+    description   String?
+    authors       String[]
+    publisher     String?
+    publishedDate String?
+    pageCount     Int?
+    categories    String[]
+    averageRating Float?
+    ratingsCount  Int?
+    imageUrl      String?
+    comments      Comment[]
+    userBooks     UserXBook[]
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+}
+
+model Comment {
+    id        String   @id @default(cuid())
+    content   String
+    rating    Int? // Optional rating from 1-5
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    bookId    String
+    book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }

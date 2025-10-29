@@ -47,13 +47,10 @@ export function useBookSearch(
     },
   });
 
-  // Flatten all pages into a single array of books
   const books = shouldSearch
     ? data?.pages.flatMap((page: SearchBooksResponse) => page.items) || []
     : initialBooks;
 
-  // Determine error message
-  console.log(error);
   const searchError = error
     ? "Failed to search books. Please try again."
     : null;

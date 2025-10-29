@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Book, BookCard } from "../components/BookCard";
 import Layout from "../components/Layout";
-import { ErrorMessage } from "../components/ErrorMessage";
-import { Loading } from "../components/Loading";
-import { TextInput } from "../components/TextInput";
-import { InfiniteScroll } from "../components/InfiniteScroll";
+import { ErrorMessage } from "../components/ui/ErrorMessage";
+import { Loading } from "../components/ui/Loading";
+import { TextInput } from "../components/ui/TextInput";
+import { InfiniteScroll } from "../components/ui/InfiniteScroll";
 import { useBookSearch } from "../hooks/useBookSearch";
 import { useDebounce } from "../hooks/useDebounce";
 import { DEFAULT_SEARCH_QUERY } from "../constants/books";
@@ -86,7 +86,7 @@ export async function getServerSideProps() {
       ? process.env.NEXT_PUBLIC_BASE_URL
       : process.env.VERCEL_URL
       ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+      : "http://localhost:3003";
 
     const response = await fetch(
       `${baseUrl}/api/books/search?q=${encodeURIComponent(
