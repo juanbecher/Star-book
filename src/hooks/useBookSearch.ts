@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Book } from "../components/BookCard";
-import { searchBooks, SearchBooksResponse } from "../utils/books";
+import { SearchBooksResponse } from "../utils/books";
 import { MAX_RESULTS } from "../constants/books";
 
 interface UseBookSearchReturn {
@@ -28,8 +28,14 @@ export function useBookSearch(
     isFetchingNextPage,
   } = useInfiniteQuery<SearchBooksResponse, Error>({
     queryKey: ["books", trimmedQuery],
-    queryFn: ({ pageParam = 0 }) =>
-      searchBooks(trimmedQuery, pageParam as number),
+    queryFn: async ({ pageParam = 0 }) => {
+      const response = await fetch(
+        `/api/books/search?q=${encodeURIComponent(
+          trimmedQuery
+        )}&startIndex=${pageParam}`
+      );
+      return await response.json();
+    },
     enabled: shouldSearch,
     initialPageParam: 0,
     getNextPageParam: (

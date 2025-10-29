@@ -8,7 +8,6 @@ import { InfiniteScroll } from "../components/InfiniteScroll";
 import { useBookSearch } from "../hooks/useBookSearch";
 import { useDebounce } from "../hooks/useDebounce";
 import { DEFAULT_SEARCH_QUERY } from "../constants/books";
-import { searchBooks } from "../utils/books";
 
 interface HomeProps {
   initialBooks: Book[];
@@ -83,7 +82,14 @@ export default Home;
 
 export async function getServerSideProps() {
   try {
-    const result = await searchBooks(DEFAULT_SEARCH_QUERY);
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const response = await fetch(
+      `${baseUrl}/api/books/search?q=${encodeURIComponent(
+        DEFAULT_SEARCH_QUERY
+      )}`
+    );
+
+    const result = await response.json();
     const initialBooks = result.items || [];
 
     return {

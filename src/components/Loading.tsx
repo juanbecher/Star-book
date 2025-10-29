@@ -8,7 +8,7 @@ interface LoadingProps {
 }
 
 export const Loading = ({
-  message = "Loading...",
+  message,
   minHeight = "min-h-[400px]",
   className = "",
 }: LoadingProps) => {
