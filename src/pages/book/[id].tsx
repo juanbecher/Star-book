@@ -17,11 +17,14 @@ import StarIcon from "@mui/icons-material/Star";
 import { useState } from "react";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import { useSession } from "next-auth/react";
 
 const Book = () => {
   const router = useRouter();
   const { id } = router.query;
   const [refreshComments, setRefreshComments] = useState(0);
+
+  const { data: session } = useSession();
 
   const {
     data: book,
@@ -178,6 +181,7 @@ const Book = () => {
                   bookId={book.id}
                   size="medium"
                   minWidth={200}
+                  disabled={!session}
                 />
               </div>
             </div>
