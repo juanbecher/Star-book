@@ -11,9 +11,6 @@ export default defineNextConfig({
     }
     return config;
   },
-  experimental: {
-    optimizePackageImports: ["@prisma/client"],
-  },
   reactStrictMode: true,
   images: {
     domains: ["books.google.com"],

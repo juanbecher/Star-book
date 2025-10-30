@@ -11,6 +11,7 @@ interface BookStateSelectProps {
   size?: "small" | "medium";
   minWidth?: number;
   className?: string;
+  disabled?: boolean;
 }
 
 export const ReadingStatusSelect = ({
@@ -18,6 +19,7 @@ export const ReadingStatusSelect = ({
   size = "small",
   minWidth = 160,
   className = "",
+  disabled = false,
 }: BookStateSelectProps) => {
   const [bookState, setBookState] = useState<string>("");
   const utils = trpc.useContext();
@@ -62,7 +64,7 @@ export const ReadingStatusSelect = ({
           value={bookState}
           onChange={handleStateChange}
           displayEmpty
-          disabled={bookMutation.isLoading}
+          disabled={bookMutation.isLoading || disabled}
           inputProps={{ "aria-label": "Select status" }}
           endAdornment={
             bookMutation.isLoading ? (
