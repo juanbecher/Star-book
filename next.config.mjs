@@ -1,10 +1,14 @@
-function defineNextConfig(config) {
-  return config;
-}
+const { PrismaPlugin } = require("@prisma/nextjs-monorepo-workaround-plugin");
 
-export default defineNextConfig({
+module.exports = {
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins = [...config.plugins, new PrismaPlugin()];
+    }
+    return config;
+  },
   reactStrictMode: true,
   images: {
     domains: ["books.google.com"],
   },
-});
+};
