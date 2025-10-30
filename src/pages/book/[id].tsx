@@ -195,11 +195,11 @@ const Book = () => {
               Description
             </h3>
 
-            <p className="text-gray-300 leading-relaxed">
+            <div className="text-gray-300 leading-relaxed">
               <Markdown rehypePlugins={[rehypeRaw]}>
                 {book.description}
               </Markdown>
-            </p>
+            </div>
           </div>
         )}
 

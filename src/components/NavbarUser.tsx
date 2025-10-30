@@ -11,6 +11,18 @@ const NavbarUser = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
+  const getInitials = (name?: string | null, email?: string | null) => {
+    const source = (name && name.trim()) || (email && email.trim()) || "";
+    if (!source) return "U";
+    const parts = source
+      .replace(/@.*$/, "")
+      .split(/[\s._-]+/)
+      .filter(Boolean);
+    const first = parts[0]?.[0] || "U";
+    const second = parts.length > 1 ? parts[1]?.[0] : "";
+    return (first + second).toUpperCase();
+  };
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -32,14 +44,6 @@ const NavbarUser = () => {
     );
   }
 
-  if (!session.user?.image) {
-    return (
-      <Button onClick={() => signOut()} variant="outlined" color="inherit">
-        Sign out
-      </Button>
-    );
-  }
-
   return (
     <div className="flex items-center">
       <Button
@@ -48,12 +52,18 @@ const NavbarUser = () => {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
-        className="rounded-full"
+        className="rounded-full w-14 h-14 p-0"
       >
         <Avatar
           alt={session.user?.name || session.user?.email || "User"}
-          src={session.user.image}
-        />
+          src={session.user?.image || undefined}
+        >
+          {!session.user?.image &&
+            getInitials(
+              session.user?.name ?? null,
+              session.user?.email ?? null
+            )}
+        </Avatar>
       </Button>
 
       <Menu
