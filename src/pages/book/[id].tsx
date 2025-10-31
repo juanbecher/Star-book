@@ -7,13 +7,8 @@ import { CommentList } from "../../components/comments/CommentList";
 import { Loading } from "../../components/ui/Loading";
 import { ErrorMessage } from "../../components/ui/ErrorMessage";
 import { ReadingStatusSelect } from "../../components/ReadingStatusSelect";
-import Rating from "@mui/material/Rating";
-import BusinessIcon from "@mui/icons-material/Business";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import PersonIcon from "@mui/icons-material/Person";
-import CategoryIcon from "@mui/icons-material/Category";
-import StarIcon from "@mui/icons-material/Star";
+import { Rating } from "../../components/ui/Rating";
+import { Building2, Calendar, BookOpen, User, Tag, Star } from "lucide-react";
 import { useState } from "react";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -100,7 +95,7 @@ const Book = () => {
 
               {/* Authors */}
               <div className="flex items-center mb-4">
-                <PersonIcon className="text-amber-500 mr-2" />
+                <User className="text-amber-500 mr-2 h-5 w-5" />
                 <div className="flex flex-wrap gap-2">
                   {book.authors.map((author: string, index: number) => (
                     <span
@@ -121,7 +116,7 @@ const Book = () => {
                     readOnly
                     precision={0.5}
                     size="large"
-                    emptyIcon={<StarIcon style={{ opacity: 0.3 }} />}
+                    emptyIcon={<Star className="h-6 w-6 opacity-30" />}
                   />
                   <span className="ml-2 text-gray-300">
                     {book.averageRating} ({book.ratingsCount} ratings)
@@ -133,19 +128,19 @@ const Book = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 {book.publisher && (
                   <div className="flex items-center text-gray-300">
-                    <BusinessIcon className="text-amber-500 mr-2 font-size-small" />
+                    <Building2 className="text-amber-500 mr-2 h-4 w-4" />
                     <span className="text-sm">{book.publisher}</span>
                   </div>
                 )}
                 {book.publishedDate && (
                   <div className="flex items-center text-gray-300">
-                    <CalendarTodayIcon className="text-amber-500 mr-2" />
+                    <Calendar className="text-amber-500 mr-2 h-4 w-4" />
                     <span className="text-sm">{book.publishedDate}</span>
                   </div>
                 )}
                 {book.pageCount && (
                   <div className="flex items-center text-gray-300">
-                    <MenuBookIcon className="text-amber-500 mr-2" />
+                    <BookOpen className="text-amber-500 mr-2 h-4 w-4" />
                     <span className="text-sm">{book.pageCount} pages</span>
                   </div>
                 )}
@@ -155,7 +150,7 @@ const Book = () => {
               {book.categories.length > 0 && (
                 <div className="mb-6">
                   <div className="flex items-center mb-2">
-                    <CategoryIcon className="text-amber-500 mr-2" />
+                    <Tag className="text-amber-500 mr-2 h-4 w-4" />
                     <span className="text-gray-300 font-medium">
                       Categories
                     </span>

@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import { trpc } from "../utils/trpc";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import type { SelectChangeEvent } from "@mui/material/Select";
-import CircularProgress from "@mui/material/CircularProgress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/Select";
+import { Loader2 } from "lucide-react";
 
 interface BookStateSelectProps {
   bookId: string;
@@ -36,8 +39,8 @@ export const ReadingStatusSelect = ({
     }
   }, [userBookStatus]);
 
-  const handleStateChange = (event: SelectChangeEvent<string>) => {
-    const newState = event.target.value;
+  const handleStateChange = (value: string) => {
+    const newState = value;
     setBookState(newState);
 
     if (newState) {
@@ -56,30 +59,27 @@ export const ReadingStatusSelect = ({
     }
   };
 
+  const sizeClasses = size === "small" ? "h-9" : "h-10";
+
   return (
-    <div className={className}>
-      <FormControl size={size} sx={{ minWidth }}>
-        <Select
-          name={bookId}
-          value={bookState}
-          onChange={handleStateChange}
-          displayEmpty
-          disabled={bookMutation.isLoading || disabled}
-          inputProps={{ "aria-label": "Select status" }}
-          endAdornment={
-            bookMutation.isLoading ? (
-              <CircularProgress size={20} color="inherit" />
-            ) : null
-          }
-        >
-          <MenuItem value="">
-            <em>Reading Status</em>
-          </MenuItem>
-          <MenuItem value={"wantToRead"}>Want to read</MenuItem>
-          <MenuItem value={"reading"}>Reading</MenuItem>
-          <MenuItem value={"read"}>Read</MenuItem>
-        </Select>
-      </FormControl>
+    <div className={className} style={{ minWidth }}>
+      <Select
+        value={bookState || undefined}
+        onValueChange={handleStateChange}
+        disabled={bookMutation.isLoading || disabled}
+      >
+        <SelectTrigger className={sizeClasses} aria-label="Select status">
+          <SelectValue placeholder="Reading Status" />
+          {bookMutation.isLoading && (
+            <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+          )}
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="wantToRead">Want to read</SelectItem>
+          <SelectItem value="reading">Reading</SelectItem>
+          <SelectItem value="read">Read</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 };

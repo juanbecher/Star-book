@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Trash2 } from "lucide-react";
 import { trpc } from "../../utils/trpc";
 import type { inferQueryOutput } from "../../utils/trpc";
 import { Button } from "../ui/Button";
@@ -74,12 +74,11 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
           onClick={handleRemove}
           loading={isDeleting}
           disabled={isDeleting}
-          variant="outlined"
-          color="error"
-          size="small"
+          variant="outline"
+          size="icon"
           className="min-w-0 p-2"
         >
-          <DeleteIcon fontSize="small" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
     </div>

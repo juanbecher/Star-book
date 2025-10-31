@@ -1,8 +1,5 @@
-import BusinessIcon from "@mui/icons-material/Business";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import PersonIcon from "@mui/icons-material/Person";
-import Rating from "@mui/material/Rating";
+import { Building2, Calendar, BookOpen, User } from "lucide-react";
+import { Rating } from "../ui/Rating";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
@@ -60,7 +57,7 @@ export const BookCard = ({ book }: { book: Book }) => {
 
             {/* Author */}
             <div className="flex items-center text-slate-400">
-              <PersonIcon className="text-amber-500 mr-2 text-sm" />
+              <User className="text-amber-500 mr-2 h-4 w-4" />
               <p className="text-sm">
                 {book.volumeInfo.authors
                   ? book.volumeInfo.authors[0]
@@ -72,7 +69,7 @@ export const BookCard = ({ book }: { book: Book }) => {
             <div className="grid grid-cols-3 justify-between mt-1 text-slate-300 text-xs overflow-hidden text-ellipsis whitespace-nowrap">
               {book.volumeInfo.publisher && (
                 <div className="flex items-center">
-                  <BusinessIcon className="text-amber-500 mr-2 text-sm" />
+                  <Building2 className="text-amber-500 mr-2 h-4 w-4" />
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {book.volumeInfo.publisher
                       ? book.volumeInfo.publisher
@@ -82,7 +79,7 @@ export const BookCard = ({ book }: { book: Book }) => {
               )}
               {book.volumeInfo.publishedDate && (
                 <div className="flex items-center mx-1">
-                  <CalendarTodayIcon className="text-amber-500 mr-2 text-sm" />
+                  <Calendar className="text-amber-500 mr-2 h-4 w-4" />
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {book.volumeInfo.publishedDate
                       ? book.volumeInfo.publishedDate
@@ -92,7 +89,7 @@ export const BookCard = ({ book }: { book: Book }) => {
               )}
               {book.volumeInfo.pageCount && (
                 <div className="flex items-center mx-1">
-                  <MenuBookIcon className="text-amber-500 mr-2 text-sm" />
+                  <BookOpen className="text-amber-500 mr-2 h-4 w-4" />
                   <p>{book.volumeInfo.pageCount} pages</p>
                 </div>
               )}
@@ -100,8 +97,7 @@ export const BookCard = ({ book }: { book: Book }) => {
             {/* Rating */}
             <div className="flex items-center my-1 text-xs text-slate-400">
               <Rating
-                name="size-small"
-                value={book.volumeInfo.averageRating}
+                value={book.volumeInfo.averageRating || 0}
                 size="small"
                 precision={0.5}
                 readOnly

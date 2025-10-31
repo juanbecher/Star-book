@@ -1,23 +1,14 @@
 import { useState } from "react";
 import { trpc } from "../../utils/trpc";
 import { useSession } from "next-auth/react";
-import Rating from "@mui/material/Rating";
-import DeleteIcon from "@mui/icons-material/Delete";
-import PersonIcon from "@mui/icons-material/Person";
+import { Rating } from "../ui/Rating";
+import { Trash2 } from "lucide-react";
+import { User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import Button from "../ui/Button";
+import { Button } from "../ui/Button";
+import type { inferQueryOutput } from "../../utils/trpc";
 
-interface Comment {
-  id: string;
-  content: string;
-  rating: number | null;
-  createdAt: Date;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
-}
+type Comment = inferQueryOutput<"books.get-book-details">["comments"][number];
 
 interface CommentItemProps {
   comment: Comment;
@@ -43,7 +34,8 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
     }
   };
 
-  const isOwner = session?.user?.id === comment.user.id;
+  // @ts-ignore
+  const isOwner = session?.user?.id === comment.userId;
 
   return (
     <div className="bg-stone-800 rounded-lg p-4 mb-4">
@@ -58,7 +50,7 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
                 className="w-8 h-8 rounded-full"
               />
             ) : (
-              <PersonIcon className="text-gray-400" />
+              <User className="w-8 h-8 text-gray-400" />
             )}
           </div>
           <div>
@@ -77,9 +69,10 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
           <Button
             onClick={handleDelete}
             disabled={isDeleting}
-            variant="outlined"
+            variant="outline"
+            size="icon"
           >
-            <DeleteIcon className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" />
           </Button>
         )}
       </div>

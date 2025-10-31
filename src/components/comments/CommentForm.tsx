@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { trpc } from "../../utils/trpc";
 import { useSession } from "next-auth/react";
-import Rating from "@mui/material/Rating";
-import Box from "@mui/material/Box";
+import { Rating } from "../ui/Rating";
 import { TextInput } from "../ui/TextInput";
-import Button from "../ui/Button";
+import { Button } from "../ui/Button";
 
 interface CommentFormProps {
   bookId: string;
@@ -57,17 +56,17 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
       <h3 className="text-lg font-semibold text-white mb-4">Leave a Comment</h3>
 
       <form onSubmit={handleSubmit}>
-        <Box className="mb-4">
+        <div className="mb-4">
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Rating (optional)
           </label>
           <Rating
-            value={rating}
-            onChange={(_, newValue) => setRating(newValue)}
+            value={rating || 0}
+            onChange={(newValue) => setRating(newValue)}
             size="large"
             precision={0.5}
           />
-        </Box>
+        </div>
 
         <TextInput
           fullWidth
@@ -76,14 +75,13 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Share your thoughts about this book..."
-          variant="outlined"
           className="mb-4"
         />
 
         <div className="flex justify-end">
           <Button
             type="submit"
-            variant="text"
+            variant="ghost"
             disabled={!content.trim() || isSubmitting}
           >
             {isSubmitting ? "Posting..." : "Post Comment"}

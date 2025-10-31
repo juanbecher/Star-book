@@ -1,5 +1,5 @@
-import CircularProgress from "@mui/material/CircularProgress";
 import React from "react";
+import { Loader2 } from "lucide-react";
 
 interface LoadingProps {
   message?: string;
@@ -17,8 +17,8 @@ export const Loading = ({
       className={`flex justify-center items-center ${minHeight} ${className}`}
     >
       <div className="flex flex-col items-center gap-4">
-        <CircularProgress />
-        <p className="text-slate-400">{message}</p>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        {message && <p className="text-slate-400">{message}</p>}
       </div>
     </div>
   );

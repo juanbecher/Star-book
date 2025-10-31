@@ -4,7 +4,6 @@ import type { AppType } from "next/dist/shared/lib/utils";
 import superjson from "superjson";
 import { SessionProvider } from "next-auth/react";
 import "../styles/globals.css";
-import { StyledEngineProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const MyApp: AppType = ({
@@ -16,9 +15,7 @@ const MyApp: AppType = ({
   return (
     <QueryClientProvider client={queryClient}>
       <SessionProvider session={session}>
-        <StyledEngineProvider injectFirst>
-          <Component {...pageProps} />
-        </StyledEngineProvider>
+        <Component {...pageProps} />
       </SessionProvider>
     </QueryClientProvider>
   );
