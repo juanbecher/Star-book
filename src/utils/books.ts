@@ -1,4 +1,4 @@
-import { Book } from "../components/BookCard";
+import { Book } from "../components/book-card/BookCard";
 import { GOOGLE_BOOKS_API_URL, MAX_RESULTS } from "../constants/books";
 
 export interface SearchBooksResponse {

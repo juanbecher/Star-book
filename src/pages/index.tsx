@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Book, BookCard } from "../components/BookCard";
+import { Book, BookCard } from "../components/book-card/BookCard";
 import Layout from "../components/Layout";
 import { ErrorMessage } from "../components/ui/ErrorMessage";
 import { Loading } from "../components/ui/Loading";
