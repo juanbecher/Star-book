@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { trpc } from "../utils/trpc";
+import { trpc } from "../../utils/trpc";
 import { useSession } from "next-auth/react";
 import Rating from "@mui/material/Rating";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PersonIcon from "@mui/icons-material/Person";
 import { formatDistanceToNow } from "date-fns";
-import Button from "./ui/Button";
+import Button from "../ui/Button";
 
 interface Comment {
   id: string;
