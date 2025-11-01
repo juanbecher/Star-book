@@ -3,73 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 export const booksRouter = createRouter()
-  .query("get-user-books", {
-    async resolve({ ctx }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
-      const books = await ctx.prisma.userXBook.findMany({
-        where: {
-          userId: ctx.session.user.id,
-        },
-        include: {
-          book: true,
-        },
-      });
-
-      return books;
-    },
-  })
-  .mutation("save-user-book", {
-    input: z.object({
-      bookId: z.string(),
-      book_state: z.string(),
-    }),
-    async resolve({ ctx, input }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
-      // Check if user already has this book
-      const existingUserBook = await ctx.prisma.userXBook.findFirst({
-        where: {
-          userId: ctx.session.user.id,
-          bookId: input.bookId,
-        },
-      });
-
-      let user_book;
-      if (existingUserBook) {
-        // Update existing record
-        user_book = await ctx.prisma.userXBook.update({
-          where: {
-            id: existingUserBook.id,
-          },
-          data: {
-            state: input.book_state,
-          },
-        });
-      } else {
-        // Create new record
-        user_book = await ctx.prisma.userXBook.create({
-          data: {
-            userId: ctx.session.user.id,
-            bookId: input.bookId,
-            state: input.book_state,
-          },
-        });
-      }
-
-      return user_book;
-    },
-  })
+  // Book details query
   .query("get-book-details", {
     input: z.object({
       googleBooksId: z.string(),
@@ -172,6 +106,131 @@ export const booksRouter = createRouter()
       return book;
     },
   })
+  .query("get-user-book-status", {
+    input: z.object({
+      bookId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      if (!ctx.session || !ctx.session.user?.id) {
+        return { state: "" };
+      }
+
+      const userBook = await ctx.prisma.userXBook.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+          bookId: input.bookId,
+        },
+        select: {
+          state: true,
+        },
+      });
+
+      return { state: userBook?.state || "" };
+    },
+  })
+
+  // User x Book mutations
+  .query("get-user-books", {
+    async resolve({ ctx }) {
+      if (!ctx.session || !ctx.session.user?.id) {
+        throw new TRPCError({
+          message: "You are not signed in",
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      const books = await ctx.prisma.userXBook.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+        include: {
+          book: true,
+        },
+      });
+
+      return books;
+    },
+  })
+  .mutation("save-user-book", {
+    input: z.object({
+      bookId: z.string(),
+      book_state: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      if (!ctx.session || !ctx.session.user?.id) {
+        throw new TRPCError({
+          message: "You are not signed in",
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      // Check if user already has this book
+      const existingUserBook = await ctx.prisma.userXBook.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+          bookId: input.bookId,
+        },
+      });
+
+      let user_book;
+      if (existingUserBook) {
+        // Update existing record
+        user_book = await ctx.prisma.userXBook.update({
+          where: {
+            id: existingUserBook.id,
+          },
+          data: {
+            state: input.book_state,
+          },
+        });
+      } else {
+        // Create new record
+        user_book = await ctx.prisma.userXBook.create({
+          data: {
+            userId: ctx.session.user.id,
+            bookId: input.bookId,
+            state: input.book_state,
+          },
+        });
+      }
+
+      return user_book;
+    },
+  })
+  .mutation("remove-user-book", {
+    input: z.object({
+      userBookId: z.string(),
+    }),
+    async resolve({ ctx, input }) {
+      if (!ctx.session || !ctx.session.user?.id) {
+        throw new TRPCError({
+          message: "You are not signed in",
+          code: "UNAUTHORIZED",
+        });
+      }
+
+      // Check if user owns the book
+      const userBook = await ctx.prisma.userXBook.findUnique({
+        where: { id: input.userBookId },
+        select: { userId: true },
+      });
+
+      if (!userBook || userBook.userId !== ctx.session.user.id) {
+        throw new TRPCError({
+          message: "You can only remove your own books",
+          code: "FORBIDDEN",
+        });
+      }
+
+      await ctx.prisma.userXBook.delete({
+        where: { id: input.userBookId },
+      });
+
+      return { success: true };
+    },
+  })
+
+  // Comment mutations
   .mutation("add-comment", {
     input: z.object({
       bookId: z.string(),
@@ -237,27 +296,5 @@ export const booksRouter = createRouter()
       });
 
       return { success: true };
-    },
-  })
-  .query("get-user-book-status", {
-    input: z.object({
-      bookId: z.string(),
-    }),
-    async resolve({ ctx, input }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        return { state: "" };
-      }
-
-      const userBook = await ctx.prisma.userXBook.findFirst({
-        where: {
-          userId: ctx.session.user.id,
-          bookId: input.bookId,
-        },
-        select: {
-          state: true,
-        },
-      });
-
-      return { state: userBook?.state || "" };
     },
   });

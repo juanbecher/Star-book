@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Book } from "../components/BookCard";
+import { Book } from "../components/book-card/BookCard";
 import { SearchBooksResponse } from "../utils/books";
 import { MAX_RESULTS } from "../constants/books";
 

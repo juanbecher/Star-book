@@ -1,9 +1,32 @@
-import Link from "next/link";
+import { useMemo } from "react";
 import { trpc } from "../utils/trpc";
 import { Loading } from "./ui/Loading";
+import { HorizontalBookCard } from "./book-card/HorizontalBookCard";
+
+const stateLabels: Record<string, string> = {
+  wantToRead: "Want to Read",
+  reading: "Currently Reading",
+  read: "Read",
+};
+
+const stateOrder = ["wantToRead", "reading", "read"];
 
 const MyBooksList = () => {
   const { data, isLoading, error } = trpc.useQuery(["books.get-user-books"]);
+
+  // Group books by state
+  const groupedBooks = useMemo(() => {
+    if (!data) return {};
+
+    return data.reduce((acc, book) => {
+      const state = book.state || "other";
+      if (!acc[state]) {
+        acc[state] = [];
+      }
+      acc[state].push(book);
+      return acc;
+    }, {} as Record<string, typeof data>);
+  }, [data]);
 
   if (isLoading) {
     return (
@@ -34,39 +57,23 @@ const MyBooksList = () => {
 
   return (
     <div className="py-8">
-      <h2 className="text-2xl font-semibold text-slate-200 mb-6">
-        Your Books ({data.length})
-      </h2>
-      <div className="space-y-4">
-        {data.map((book) => (
-          <div
-            key={book.id}
-            className="bg-stone-800 rounded-lg p-4 flex justify-between items-center"
-          >
-            <div>
-              <Link href={`/book/${book.book.googleBooksId}`}>
-                <a className="text-slate-200 font-medium hover:text-amber-600 transition-colors">
-                  {book.book.title}
-                </a>
-              </Link>
-              {book.book.subtitle && (
-                <p className="text-slate-400 text-sm mt-1">
-                  {book.book.subtitle}
-                </p>
-              )}
-              {book.book.authors && book.book.authors.length > 0 && (
-                <p className="text-slate-500 text-sm mt-1">
-                  by {book.book.authors.join(", ")}
-                </p>
-              )}
+      <div className="space-y-8">
+        {stateOrder.map((state) => {
+          const books = groupedBooks[state] || [];
+
+          return (
+            <div key={state}>
+              <h3 className="text-xl font-semibold text-slate-300 mb-4">
+                {stateLabels[state] || state} ({books.length})
+              </h3>
+              <div className="space-y-4">
+                {books.map((book) => (
+                  <HorizontalBookCard key={book.id} userBook={book} />
+                ))}
+              </div>
             </div>
-            <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-amber-600 text-white text-sm capitalize">
-                {book.state}
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
