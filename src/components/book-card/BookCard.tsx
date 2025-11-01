@@ -30,7 +30,7 @@ export const BookCard = ({ book }: { book: Book }) => {
   };
 
   return (
-    <div className="h-[200px] flex rounded-lg bg-stone-800 shadow-sm">
+    <div className="h-[200px] flex rounded-lg bg-card border border-border shadow-sm">
       <div className="p-2 m-auto">
         <Image
           src={
@@ -49,7 +49,7 @@ export const BookCard = ({ book }: { book: Book }) => {
         <div className="px-2 pt-2 pb-0">
           <div className="grid gap-2">
             <h6
-              className="m-0 text-base font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer hover:text-amber-500"
+              className="m-0 text-base font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer hover:text-primary"
               onClick={handleCardClick}
             >
               {book.volumeInfo.title}
@@ -57,7 +57,7 @@ export const BookCard = ({ book }: { book: Book }) => {
 
             {/* Author */}
             <div className="flex items-center text-slate-400">
-              <User className="text-amber-500 mr-2 h-4 w-4" />
+              <User className="text-primary mr-2 h-4 w-4" />
               <p className="text-sm">
                 {book.volumeInfo.authors
                   ? book.volumeInfo.authors[0]
@@ -68,8 +68,8 @@ export const BookCard = ({ book }: { book: Book }) => {
             {/* Publisher - publish date - pages*/}
             <div className="grid grid-cols-3 justify-between mt-1 text-slate-300 text-xs overflow-hidden text-ellipsis whitespace-nowrap">
               {book.volumeInfo.publisher && (
-                <div className="flex items-center">
-                  <Building2 className="text-amber-500 mr-2 h-4 w-4" />
+                <div className="grid items-center grid-cols-[auto_1fr]">
+                  <Building2 className="text-primary mr-2 h-4 w-4" />
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {book.volumeInfo.publisher
                       ? book.volumeInfo.publisher
@@ -78,8 +78,8 @@ export const BookCard = ({ book }: { book: Book }) => {
                 </div>
               )}
               {book.volumeInfo.publishedDate && (
-                <div className="flex items-center mx-1">
-                  <Calendar className="text-amber-500 mr-2 h-4 w-4" />
+                <div className="grid items-center grid-cols-[auto_1fr] mx-1">
+                  <Calendar className="text-primary mr-2 h-4 w-4" />
                   <p className="overflow-hidden text-ellipsis whitespace-nowrap">
                     {book.volumeInfo.publishedDate
                       ? book.volumeInfo.publishedDate
@@ -88,8 +88,8 @@ export const BookCard = ({ book }: { book: Book }) => {
                 </div>
               )}
               {book.volumeInfo.pageCount && (
-                <div className="flex items-center mx-1">
-                  <BookOpen className="text-amber-500 mr-2 h-4 w-4" />
+                <div className="grid items-center grid-cols-[auto_1fr] mx-1">
+                  <BookOpen className="text-primary mr-2 h-4 w-4" />
                   <p>{book.volumeInfo.pageCount} pages</p>
                 </div>
               )}

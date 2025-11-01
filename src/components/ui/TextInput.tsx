@@ -36,7 +36,9 @@ export const TextInput = ({
         <Textarea
           id={id}
           value={value}
-          onChange={onChange}
+          onChange={
+            onChange as unknown as React.ChangeEventHandler<HTMLTextAreaElement>
+          }
           placeholder={placeholder}
           rows={rows}
           className={inputClasses}

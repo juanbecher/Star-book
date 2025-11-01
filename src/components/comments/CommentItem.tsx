@@ -7,8 +7,10 @@ import { User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "../ui/Button";
 import type { inferQueryOutput } from "../../utils/trpc";
+import { Tile } from "../ui/Tile";
 
-type Comment = inferQueryOutput<"books.get-book-details">["comments"][number];
+export type Comment =
+  inferQueryOutput<"books">["getBookDetails"]["comments"][number];
 
 interface CommentItemProps {
   comment: Comment;
@@ -18,7 +20,7 @@ interface CommentItemProps {
 export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
   const { data: session } = useSession();
   const [isDeleting, setIsDeleting] = useState(false);
-  const deleteCommentMutation = trpc.useMutation(["books.delete-comment"]);
+  const deleteCommentMutation = trpc.books.deleteComment.useMutation();
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this comment?")) {
@@ -38,7 +40,7 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
   const isOwner = session?.user?.id === comment.userId;
 
   return (
-    <div className="bg-stone-800 rounded-lg p-4 mb-4">
+    <Tile>
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3 mb-2">
           <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
@@ -89,6 +91,6 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
       )}
 
       <p className="text-gray-300 text-sm leading-relaxed">{comment.content}</p>
-    </div>
+    </Tile>
   );
 };

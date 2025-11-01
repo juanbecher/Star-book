@@ -18,8 +18,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const getNavLinkClassName = (pathname: string) => {
     const baseClasses = "p-2 transition hover:duration-300 cursor-pointer";
-    const activeClasses = "bg-amber-700 border-b-2 border-white";
-    const inactiveClasses = "hover:bg-amber-700";
+    const activeClasses = "bg-primary-dark border-b-2 border-white";
+    const inactiveClasses = "hover:bg-primary-dark";
 
     return router.pathname === pathname
       ? `${baseClasses} ${activeClasses}`
@@ -36,8 +36,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="dark">
-        <header className=" bg-amber-800 text-white px-8 py-4">
+      <main
+        data-theme="dark"
+        className="min-h-screen bg-background text-foreground"
+      >
+        <header className=" bg-chart-5 text-primary-foreground px-8 py-4">
           <div className="flex justify-between items-center max-w-screen-xl mx-auto my-0">
             <Link href="/" className="italic text-2xl my-auto">
               StarBook

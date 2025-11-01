@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { Rating } from "../ui/Rating";
 import { TextInput } from "../ui/TextInput";
 import { Button } from "../ui/Button";
+import { Tile } from "../ui/Tile";
 
 interface CommentFormProps {
   bookId: string;
@@ -16,7 +17,7 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
   const [rating, setRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const addCommentMutation = trpc.useMutation(["books.add-comment"]);
+  const addCommentMutation = trpc.books.addComment.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,16 +44,16 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
 
   if (!session) {
     return (
-      <div className="bg-stone-800 rounded-lg p-4 mb-6">
+      <Tile>
         <p className="text-gray-400 text-center">
           Please sign in to leave a comment
         </p>
-      </div>
+      </Tile>
     );
   }
 
   return (
-    <div className="bg-stone-800 rounded-lg p-4 mb-6">
+    <Tile>
       <h3 className="text-lg font-semibold text-white mb-4">Leave a Comment</h3>
 
       <form onSubmit={handleSubmit}>
@@ -88,6 +89,6 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
           </Button>
         </div>
       </form>
-    </div>
+    </Tile>
   );
 };

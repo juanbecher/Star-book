@@ -79,7 +79,7 @@ const Rating: React.FC<RatingProps> = ({
       >
         {filled ? (
           <Star
-            className={cn(sizeClasses[size], "fill-amber-500 text-amber-500")}
+            className={cn(sizeClasses[size], "fill-primary text-primary")}
           />
         ) : halfFilled ? (
           <div className="relative">
@@ -89,7 +89,7 @@ const Rating: React.FC<RatingProps> = ({
             <Star
               className={cn(
                 sizeClasses[size],
-                "absolute left-0 top-0 fill-amber-500 text-amber-500",
+                "absolute left-0 top-0 fill-primary text-primary",
                 "overflow-hidden w-1/2"
               )}
               style={{ clipPath: "inset(0 50% 0 0)" }}

@@ -5,9 +5,10 @@ import { Trash2 } from "lucide-react";
 import { trpc } from "../../utils/trpc";
 import type { inferQueryOutput } from "../../utils/trpc";
 import { Button } from "../ui/Button";
+import { Tile } from "../ui/Tile";
 
 // Infer the type from tRPC query output
-type UserBooksArray = inferQueryOutput<"books.get-user-books">;
+type UserBooksArray = inferQueryOutput<"books">["getUserBooks"];
 type UserBook = UserBooksArray[number]; // Extract array element type
 
 interface HorizontalBookCardProps {
@@ -16,8 +17,8 @@ interface HorizontalBookCardProps {
 
 export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const utils = trpc.useContext();
-  const removeBookMutation = trpc.useMutation(["books.remove-user-book"]);
+  const utils = trpc.useUtils();
+  const removeBookMutation = trpc.books.removeUserBook.useMutation();
 
   const handleRemove = async () => {
     if (
@@ -31,7 +32,7 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
           userBookId: userBook.id,
         });
         // Invalidate and refetch user books
-        utils.invalidateQueries(["books.get-user-books"]);
+        utils.books.getUserBooks.invalidate();
       } catch (error) {
         console.error("Failed to remove book:", error);
         alert("Failed to remove book. Please try again.");
@@ -42,7 +43,7 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
   };
 
   return (
-    <div className="bg-stone-800 rounded-lg p-4 flex gap-4 items-center">
+    <Tile className="p-4 flex gap-4 items-center">
       <div className="flex-shrink-0">
         <Image
           src={userBook.book.imageUrl || "/imagen.png"}
@@ -53,10 +54,11 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
         />
       </div>
       <div className="flex-1 min-w-0">
-        <Link href={`/book/${userBook.book.googleBooksId}`}>
-          <a className="text-slate-200 font-medium hover:text-amber-600 transition-colors">
-            {userBook.book.title}
-          </a>
+        <Link
+          href={`/book/${userBook.book.googleBooksId}`}
+          className="text-slate-200 font-medium hover:text-amber-600 transition-colors"
+        >
+          {userBook.book.title}
         </Link>
         {userBook.book.subtitle && (
           <p className="text-slate-400 text-sm mt-1">
@@ -81,6 +83,6 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
-    </div>
+    </Tile>
   );
 };

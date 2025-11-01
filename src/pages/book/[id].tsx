@@ -13,6 +13,7 @@ import { useState } from "react";
 import Markdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import { useSession } from "next-auth/react";
+import { Tile } from "@/components/ui/Tile";
 
 const Book = () => {
   const router = useRouter();
@@ -26,8 +27,8 @@ const Book = () => {
     isLoading,
     error,
     refetch,
-  } = trpc.useQuery(
-    ["books.get-book-details", { googleBooksId: id as string }],
+  } = trpc.books.getBookDetails.useQuery(
+    { googleBooksId: id as string },
     {
       enabled: !!id,
     }
@@ -71,7 +72,7 @@ const Book = () => {
     <Layout>
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Book Header */}
-        <div className="bg-stone-800 rounded-lg p-6 mb-8">
+        <Tile className="p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Book Cover */}
             <div className="flex-shrink-0">
@@ -95,18 +96,64 @@ const Book = () => {
 
               {/* Authors */}
               <div className="flex items-center mb-4">
-                <User className="text-amber-500 mr-2 h-5 w-5" />
+                <User className="text-primary mr-2 h-5 w-5" />
                 <div className="flex flex-wrap gap-2">
                   {book.authors.map((author: string, index: number) => (
                     <span
                       key={index}
-                      className="text-gray-300 bg-gray-700 px-3 py-1 rounded-full text-sm"
+                      className="text-gray-300 bg-card px-3 py-1 rounded-full text-sm"
                     >
                       {author}
                     </span>
                   ))}
                 </div>
               </div>
+
+              {/* Book Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {book.publisher && (
+                  <div className="flex items-center text-gray-300">
+                    <Building2 className="text-primary mr-2 h-4 w-4" />
+                    <span className="text-sm">{book.publisher}</span>
+                  </div>
+                )}
+                {book.publishedDate && (
+                  <div className="flex items-center text-gray-300">
+                    <Calendar className="text-primary mr-2 h-4 w-4" />
+                    <span className="text-sm">{book.publishedDate}</span>
+                  </div>
+                )}
+                {book.pageCount && (
+                  <div className="flex items-center text-gray-300">
+                    <BookOpen className="text-primary mr-2 h-4 w-4" />
+                    <span className="text-sm">{book.pageCount} pages</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Categories */}
+              {book.categories.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center mb-2">
+                    <Tag className="text-primary mr-2 h-4 w-4" />
+                    <span className="text-gray-300 font-medium">
+                      Categories
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {book.categories
+                      .slice(0, 3)
+                      .map((category: string, index: number) => (
+                        <span
+                          key={index}
+                          className="bg-primary text-black px-3 py-1 rounded-full text-sm font-medium"
+                        >
+                          {category}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              )}
 
               {/* Rating */}
               {book.averageRating && (
@@ -124,52 +171,6 @@ const Book = () => {
                 </div>
               )}
 
-              {/* Book Details Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {book.publisher && (
-                  <div className="flex items-center text-gray-300">
-                    <Building2 className="text-amber-500 mr-2 h-4 w-4" />
-                    <span className="text-sm">{book.publisher}</span>
-                  </div>
-                )}
-                {book.publishedDate && (
-                  <div className="flex items-center text-gray-300">
-                    <Calendar className="text-amber-500 mr-2 h-4 w-4" />
-                    <span className="text-sm">{book.publishedDate}</span>
-                  </div>
-                )}
-                {book.pageCount && (
-                  <div className="flex items-center text-gray-300">
-                    <BookOpen className="text-amber-500 mr-2 h-4 w-4" />
-                    <span className="text-sm">{book.pageCount} pages</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Categories */}
-              {book.categories.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center mb-2">
-                    <Tag className="text-amber-500 mr-2 h-4 w-4" />
-                    <span className="text-gray-300 font-medium">
-                      Categories
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {book.categories
-                      .slice(0, 3)
-                      .map((category: string, index: number) => (
-                        <span
-                          key={index}
-                          className="bg-amber-500 text-black px-3 py-1 rounded-full text-sm font-medium"
-                        >
-                          {category}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-              )}
-
               {/* Book State Select */}
               <div className="mb-6">
                 <ReadingStatusSelect
@@ -181,11 +182,11 @@ const Book = () => {
               </div>
             </div>
           </div>
-        </div>
+        </Tile>
 
         {/* Description */}
         {book.description && (
-          <div className="bg-stone-800 rounded-lg p-6 mb-8">
+          <Tile className="p-6 mb-8">
             <h3 className="text-xl font-semibold text-white mb-4">
               Description
             </h3>
@@ -195,7 +196,7 @@ const Book = () => {
                 {book.description}
               </Markdown>
             </div>
-          </div>
+          </Tile>
         )}
 
         {/* Comments Section */}

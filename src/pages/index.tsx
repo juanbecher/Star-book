@@ -38,11 +38,11 @@ const Home = ({ initialBooks }: HomeProps) => {
           <TextInput
             id="book-search"
             label="Search book"
+            placeholder="Search books by title or author"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-
         {searchError && <ErrorMessage message={searchError} />}
 
         {isSearching ? (

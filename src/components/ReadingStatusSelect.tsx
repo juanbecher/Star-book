@@ -25,13 +25,12 @@ export const ReadingStatusSelect = ({
   disabled = false,
 }: BookStateSelectProps) => {
   const [bookState, setBookState] = useState<string>("");
-  const utils = trpc.useContext();
-  const bookMutation = trpc.useMutation(["books.save-user-book"]);
+  const utils = trpc.useUtils();
+  const bookMutation = trpc.books.saveUserBook.useMutation();
 
-  const { data: userBookStatus } = trpc.useQuery([
-    "books.get-user-book-status",
-    { bookId },
-  ]);
+  const { data: userBookStatus } = trpc.books.getUserBookStatus.useQuery({
+    bookId,
+  });
 
   useEffect(() => {
     if (userBookStatus?.state) {
@@ -51,8 +50,8 @@ export const ReadingStatusSelect = ({
         },
         {
           onSuccess: () => {
-            utils.invalidateQueries(["books.get-user-books"]);
-            utils.invalidateQueries(["books.get-user-book-status", { bookId }]);
+            utils.books.getUserBooks.invalidate();
+            utils.books.getUserBookStatus.invalidate({ bookId });
           },
         }
       );
@@ -66,11 +65,11 @@ export const ReadingStatusSelect = ({
       <Select
         value={bookState || undefined}
         onValueChange={handleStateChange}
-        disabled={bookMutation.isLoading || disabled}
+        disabled={bookMutation.isPending || disabled}
       >
         <SelectTrigger className={sizeClasses} aria-label="Select status">
           <SelectValue placeholder="Reading Status" />
-          {bookMutation.isLoading && (
+          {bookMutation.isPending && (
             <Loader2 className="ml-2 h-4 w-4 animate-spin" />
           )}
         </SelectTrigger>
