@@ -28,20 +28,6 @@ const MyBooksList = () => {
     }, {} as Record<string, typeof data>);
   }, [data]);
 
-  // Group books by state
-  const groupedBooks = useMemo(() => {
-    if (!data) return {};
-
-    return data.reduce((acc, book) => {
-      const state = book.state || "other";
-      if (!acc[state]) {
-        acc[state] = [];
-      }
-      acc[state].push(book);
-      return acc;
-    }, {} as Record<string, typeof data>);
-  }, [data]);
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[200px]">
