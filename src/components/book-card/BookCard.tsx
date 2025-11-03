@@ -16,7 +16,7 @@ const CARD_SIZE_MAP = {
     maxStars: 1,
   },
   large: {
-    cardContainer: "h-[380px] grid-cols-[1fr_3fr]",
+    cardContainer: "h-[360px] grid-cols-[1fr_3fr]",
     imageWidth: 180,
     imageHeight: 270,
     titleFontSize: "text-3xl",
@@ -148,7 +148,7 @@ export const BookCard = ({
 
           {/* Reading Status */}
           {showReadingStatus && (
-            <div className="mb-6 flex">
+            <div className="flex items-center">
               <ReadingStatusSelect
                 bookId={book.id}
                 size="medium"
