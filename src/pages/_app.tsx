@@ -7,6 +7,7 @@ import { httpBatchLink } from "@trpc/client";
 import { useState } from "react";
 import { trpc } from "../utils/trpc";
 import { Session } from "next-auth/core/types";
+import Head from "next/head";
 
 const MyApp: AppType<{ session: Session }> = ({
   Component,
@@ -25,13 +26,18 @@ const MyApp: AppType<{ session: Session }> = ({
   );
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <SessionProvider session={session}>
-          <Component {...pageProps} />
-        </SessionProvider>
-      </QueryClientProvider>
-    </trpc.Provider>
+    <>
+      <Head>
+        <title>StarBook</title>
+      </Head>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider session={session}>
+            <Component {...pageProps} />
+          </SessionProvider>
+        </QueryClientProvider>
+      </trpc.Provider>
+    </>
   );
 };
 

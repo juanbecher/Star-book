@@ -90,7 +90,7 @@ export const BookCard = ({
         <div className="grid gap-4 p-3">
           <div className="grid gap-2">
             {/* Title */}
-            <h6
+            <h3
               className={cn(
                 `m-0 ${CARD_SIZE_MAP[size].titleFontSize} font-semibold overflow-hidden text-ellipsis whitespace-nowrap hover:text-primary`,
                 onClick && "cursor-pointer"
@@ -98,7 +98,7 @@ export const BookCard = ({
               onClick={onClick}
             >
               {book.volumeInfo.title}
-            </h6>
+            </h3>
 
             {/* Author */}
             <div className="flex items-center text-slate-400">
