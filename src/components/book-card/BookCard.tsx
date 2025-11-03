@@ -9,14 +9,14 @@ import { BookFeatures } from "./BookFeatures";
 
 const CARD_SIZE_MAP = {
   medium: {
-    cardHeight: "h-[200px]",
+    cardContainer: "h-[200px] grid-cols-[1fr_2fr]",
     imageWidth: 120,
     imageHeight: 180,
     titleFontSize: "text-base",
     maxStars: 1,
   },
   large: {
-    cardHeight: "h-[360px]",
+    cardContainer: "h-[380px] grid-cols-[1fr_3fr]",
     imageWidth: 180,
     imageHeight: 270,
     titleFontSize: "text-3xl",
@@ -64,10 +64,10 @@ export const BookCard = ({
 
   return (
     <div
-      className={`${CARD_SIZE_MAP[size].cardHeight} flex rounded-lg bg-card border border-border shadow-sm`}
+      className={`${CARD_SIZE_MAP[size].cardContainer} grid rounded-lg bg-card border border-border shadow-sm`}
     >
       {/* Left Side */}
-      <div>
+      <div className="overflow-hidden">
         <Image
           src={
             book.volumeInfo.imageLinks
@@ -78,14 +78,15 @@ export const BookCard = ({
           width={CARD_SIZE_MAP[size].imageWidth}
           height={CARD_SIZE_MAP[size].imageHeight}
           className={cn(
-            "rounded-lg object-cover w-full h-full",
+            "rounded-lg object-cover object-center w-full h-full",
             onClick && "cursor-pointer"
           )}
           onClick={onClick}
         />
       </div>
+
       {/* Right Side */}
-      <div className="w-3/4 grid">
+      <div className="grid">
         <div className="grid gap-4 p-3">
           <div className="grid gap-2">
             {/* Title */}
