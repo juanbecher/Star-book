@@ -10,6 +10,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import { DEFAULT_SEARCH_QUERY } from "../constants/books";
 import { Search } from "lucide-react";
 import { useRouter } from "next/router";
+import { searchBooks } from "../utils/books";
 
 interface HomeProps {
   initialBooks: Book[];
@@ -99,27 +100,17 @@ const Home = ({ initialBooks }: HomeProps) => {
 
 export default Home;
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-      ? process.env.NEXT_PUBLIC_BASE_URL
-      : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
-
-    const response = await fetch(
-      `${baseUrl}/api/books/search?q=${encodeURIComponent(
-        DEFAULT_SEARCH_QUERY
-      )}`
-    );
-
-    const result = await response.json();
+    // Call searchBooks directly instead of going through API route
+    const result = await searchBooks(DEFAULT_SEARCH_QUERY, 0);
     const initialBooks = result.items || [];
 
     return {
       props: {
         initialBooks,
       },
+      revalidate: 86400, // Revalidate every 24 hours
     };
   } catch (error) {
     console.error("Error fetching initial books:", error);
@@ -127,6 +118,7 @@ export async function getServerSideProps() {
       props: {
         initialBooks: [],
       },
+      revalidate: 86400, // Revalidate every 24 hours
     };
   }
 }
