@@ -5,6 +5,7 @@ import { Rating } from "../ui/Rating";
 import { TextInput } from "../ui/TextInput";
 import { Button } from "../ui/Button";
 import { Tile } from "../ui/Tile";
+import { StarRating } from "../ui/StarRating";
 
 interface CommentFormProps {
   bookId: string;
@@ -61,11 +62,11 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Rating (optional)
           </label>
-          <Rating
+          <StarRating
             value={rating || 0}
-            onChange={(newValue) => setRating(newValue)}
-            size="large"
-            precision={0.5}
+            onValueChange={setRating}
+            size="medium"
+            showLabel={false}
           />
         </div>
 
@@ -82,10 +83,10 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
         <div className="flex justify-end">
           <Button
             type="submit"
-            variant="ghost"
+            variant="outline"
             disabled={!content.trim() || isSubmitting}
           >
-            {isSubmitting ? "Posting..." : "Post Comment"}
+            {isSubmitting ? "Commenting..." : "Comment"}
           </Button>
         </div>
       </form>

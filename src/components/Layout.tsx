@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         className="min-h-screen bg-background text-foreground"
       >
         <header className=" bg-chart-5 text-primary-foreground px-8 py-4">
-          <div className="flex justify-between items-center max-w-screen-xl mx-auto my-0">
+          <div className="flex justify-between items-center max-w-7xl mx-auto my-0">
             <Link href="/" className="italic text-2xl my-auto">
               StarBook
             </Link>
@@ -60,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </header>
 
-        <div className="max-w-screen-xl mx-auto my-0 px-4">{children}</div>
+        <div className="max-w-7xl mx-auto my-0 px-4">{children}</div>
       </main>
     </>
   );

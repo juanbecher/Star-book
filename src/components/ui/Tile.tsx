@@ -10,10 +10,7 @@ export const Tile = ({
 }) => {
   return (
     <div
-      className={cn(
-        "bg-card border border-border rounded-lg p-4 mb-6",
-        className
-      )}
+      className={cn("bg-card border border-border rounded-lg p-4", className)}
     >
       {children}
     </div>

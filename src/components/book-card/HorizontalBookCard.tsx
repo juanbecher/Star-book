@@ -6,6 +6,14 @@ import { trpc } from "../../utils/trpc";
 import type { inferQueryOutput } from "../../utils/trpc";
 import { Button } from "../ui/Button";
 import { Tile } from "../ui/Tile";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/Dialog";
 
 // Infer the type from tRPC query output
 type UserBooksArray = inferQueryOutput<"books">["getUserBooks"];
@@ -17,34 +25,34 @@ interface HorizontalBookCardProps {
 
 export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const utils = trpc.useUtils();
   const removeBookMutation = trpc.books.removeUserBook.useMutation();
 
-  const handleRemove = async () => {
-    if (
-      window.confirm(
-        `Are you sure you want to remove "${userBook.book.title}" from your books?`
-      )
-    ) {
-      setIsDeleting(true);
-      try {
-        await removeBookMutation.mutateAsync({
-          userBookId: userBook.id,
-        });
-        // Invalidate and refetch user books
-        utils.books.getUserBooks.invalidate();
-      } catch (error) {
-        console.error("Failed to remove book:", error);
-        alert("Failed to remove book. Please try again.");
-      } finally {
-        setIsDeleting(false);
-      }
+  const handleRemoveClick = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmRemove = async () => {
+    setIsDeleting(true);
+    try {
+      await removeBookMutation.mutateAsync({
+        userBookId: userBook.id,
+      });
+      // Invalidate and refetch user books
+      utils.books.getUserBooks.invalidate();
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to remove book:", error);
+      // Keep dialog open on error so user can try again
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return (
     <Tile className="p-4 flex gap-4 items-center">
-      <div className="flex-shrink-0">
+      <div className="shrink-0">
         <Image
           src={userBook.book.imageUrl || "/imagen.png"}
           alt={userBook.book.title}
@@ -71,9 +79,9 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
           </p>
         )}
       </div>
-      <div className="flex-shrink-0 flex items-center gap-3">
+      <div className="shrink-0 flex items-center gap-3">
         <Button
-          onClick={handleRemove}
+          onClick={handleRemoveClick}
           loading={isDeleting}
           disabled={isDeleting}
           variant="outline"
@@ -83,6 +91,35 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Book</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove &quot;{userBook.book.title}&quot;
+              from your books?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmRemove}
+              loading={isDeleting}
+              disabled={isDeleting}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Tile>
   );
 };

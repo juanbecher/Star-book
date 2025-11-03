@@ -1,5 +1,4 @@
 import { signIn, signOut, useSession } from "next-auth/react";
-import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/Avatar";
 import {
   DropdownMenu,
@@ -41,7 +40,7 @@ const NavbarUser = () => {
     <div className="flex items-center">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="rounded-full w-14 h-14 p-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+          <button className="cursor-pointer rounded-full w-14 h-14 p-0 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
             <Avatar className="w-14 h-14">
               {session.user?.image && (
                 <AvatarImage

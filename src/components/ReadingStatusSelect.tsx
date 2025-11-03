@@ -68,7 +68,7 @@ export const ReadingStatusSelect = ({
         disabled={bookMutation.isPending || disabled}
       >
         <SelectTrigger className={sizeClasses} aria-label="Select status">
-          <SelectValue placeholder="Reading Status" />
+          <SelectValue placeholder="Add to my list" />
           {bookMutation.isPending && (
             <Loader2 className="ml-2 h-4 w-4 animate-spin" />
           )}

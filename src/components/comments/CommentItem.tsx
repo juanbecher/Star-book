@@ -1,13 +1,21 @@
 import { useState } from "react";
 import { trpc } from "../../utils/trpc";
 import { useSession } from "next-auth/react";
-import { Rating } from "../ui/Rating";
 import { Trash2 } from "lucide-react";
 import { User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "../ui/Button";
 import type { inferQueryOutput } from "../../utils/trpc";
 import { Tile } from "../ui/Tile";
+import { StarRating } from "../ui/StarRating";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/Dialog";
 
 export type Comment =
   inferQueryOutput<"books">["getBookDetails"]["comments"][number];
@@ -20,19 +28,24 @@ interface CommentItemProps {
 export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
   const { data: session } = useSession();
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const deleteCommentMutation = trpc.books.deleteComment.useMutation();
 
-  const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
-      setIsDeleting(true);
-      try {
-        await deleteCommentMutation.mutateAsync({ commentId: comment.id });
-        onDelete();
-      } catch (error) {
-        console.error("Failed to delete comment:", error);
-      } finally {
-        setIsDeleting(false);
-      }
+  const handleDeleteClick = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteCommentMutation.mutateAsync({ commentId: comment.id });
+      onDelete();
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      // Keep dialog open on error so user can try again
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -69,7 +82,7 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
 
         {isOwner && (
           <Button
-            onClick={handleDelete}
+            onClick={handleDeleteClick}
             disabled={isDeleting}
             variant="outline"
             size="icon"
@@ -81,16 +94,45 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
 
       {comment.rating && (
         <div className="mb-2">
-          <Rating
+          <StarRating
             value={comment.rating}
+            size="medium"
             readOnly
-            size="small"
-            precision={0.5}
+            showLabel={false}
           />
         </div>
       )}
 
       <p className="text-gray-300 text-sm leading-relaxed">{comment.content}</p>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Comment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this comment? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              loading={isDeleting}
+              disabled={isDeleting}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Tile>
   );
 };
