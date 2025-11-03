@@ -12,7 +12,7 @@ const stateLabels: Record<string, string> = {
 const stateOrder = ["wantToRead", "reading", "read"];
 
 const MyBooksList = () => {
-  const { data, isLoading, error } = trpc.useQuery(["books.get-user-books"]);
+  const { data, isLoading, error } = trpc.books.getUserBooks.useQuery();
 
   // Group books by state
   const groupedBooks = useMemo(() => {

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { trpc } from "../../utils/trpc";
 import { useSession } from "next-auth/react";
-import Rating from "@mui/material/Rating";
-import Box from "@mui/material/Box";
+import { Rating } from "../ui/Rating";
 import { TextInput } from "../ui/TextInput";
-import Button from "../ui/Button";
+import { Button } from "../ui/Button";
+import { Tile } from "../ui/Tile";
+import { StarRating } from "../ui/StarRating";
 
 interface CommentFormProps {
   bookId: string;
@@ -17,7 +18,7 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
   const [rating, setRating] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const addCommentMutation = trpc.useMutation(["books.add-comment"]);
+  const addCommentMutation = trpc.books.addComment.useMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,30 +45,30 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
 
   if (!session) {
     return (
-      <div className="bg-stone-800 rounded-lg p-4 mb-6">
+      <Tile>
         <p className="text-gray-400 text-center">
           Please sign in to leave a comment
         </p>
-      </div>
+      </Tile>
     );
   }
 
   return (
-    <div className="bg-stone-800 rounded-lg p-4 mb-6">
+    <Tile>
       <h3 className="text-lg font-semibold text-white mb-4">Leave a Comment</h3>
 
       <form onSubmit={handleSubmit}>
-        <Box className="mb-4">
+        <div className="mb-4">
           <label className="block text-sm font-medium text-gray-300 mb-2">
             Rating (optional)
           </label>
-          <Rating
-            value={rating}
-            onChange={(_, newValue) => setRating(newValue)}
-            size="large"
-            precision={0.5}
+          <StarRating
+            value={rating || 0}
+            onValueChange={setRating}
+            size="medium"
+            showLabel={false}
           />
-        </Box>
+        </div>
 
         <TextInput
           fullWidth
@@ -76,20 +77,19 @@ export const CommentForm = ({ bookId, onCommentAdded }: CommentFormProps) => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Share your thoughts about this book..."
-          variant="outlined"
           className="mb-4"
         />
 
         <div className="flex justify-end">
           <Button
             type="submit"
-            variant="text"
+            variant="outline"
             disabled={!content.trim() || isSubmitting}
           >
-            {isSubmitting ? "Posting..." : "Post Comment"}
+            {isSubmitting ? "Commenting..." : "Comment"}
           </Button>
         </div>
       </form>
-    </div>
+    </Tile>
   );
 };

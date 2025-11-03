@@ -1,13 +1,22 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Trash2 } from "lucide-react";
 import { trpc } from "../../utils/trpc";
 import type { inferQueryOutput } from "../../utils/trpc";
 import { Button } from "../ui/Button";
+import { Tile } from "../ui/Tile";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/Dialog";
 
 // Infer the type from tRPC query output
-type UserBooksArray = inferQueryOutput<"books.get-user-books">;
+type UserBooksArray = inferQueryOutput<"books">["getUserBooks"];
 type UserBook = UserBooksArray[number]; // Extract array element type
 
 interface HorizontalBookCardProps {
@@ -16,34 +25,34 @@ interface HorizontalBookCardProps {
 
 export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
-  const utils = trpc.useContext();
-  const removeBookMutation = trpc.useMutation(["books.remove-user-book"]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const utils = trpc.useUtils();
+  const removeBookMutation = trpc.books.removeUserBook.useMutation();
 
-  const handleRemove = async () => {
-    if (
-      window.confirm(
-        `Are you sure you want to remove "${userBook.book.title}" from your books?`
-      )
-    ) {
-      setIsDeleting(true);
-      try {
-        await removeBookMutation.mutateAsync({
-          userBookId: userBook.id,
-        });
-        // Invalidate and refetch user books
-        utils.invalidateQueries(["books.get-user-books"]);
-      } catch (error) {
-        console.error("Failed to remove book:", error);
-        alert("Failed to remove book. Please try again.");
-      } finally {
-        setIsDeleting(false);
-      }
+  const handleRemoveClick = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmRemove = async () => {
+    setIsDeleting(true);
+    try {
+      await removeBookMutation.mutateAsync({
+        userBookId: userBook.id,
+      });
+      // Invalidate and refetch user books
+      utils.books.getUserBooks.invalidate();
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to remove book:", error);
+      // Keep dialog open on error so user can try again
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   return (
-    <div className="bg-stone-800 rounded-lg p-4 flex gap-4 items-center">
-      <div className="flex-shrink-0">
+    <Tile className="p-4 flex gap-4 items-center">
+      <div className="shrink-0">
         <Image
           src={userBook.book.imageUrl || "/imagen.png"}
           alt={userBook.book.title}
@@ -53,10 +62,11 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
         />
       </div>
       <div className="flex-1 min-w-0">
-        <Link href={`/book/${userBook.book.googleBooksId}`}>
-          <a className="text-slate-200 font-medium hover:text-amber-600 transition-colors">
-            {userBook.book.title}
-          </a>
+        <Link
+          href={`/book/${userBook.book.googleBooksId}`}
+          className="text-slate-200 font-medium hover:text-amber-600 transition-colors"
+        >
+          {userBook.book.title}
         </Link>
         {userBook.book.subtitle && (
           <p className="text-slate-400 text-sm mt-1">
@@ -69,19 +79,47 @@ export const HorizontalBookCard = ({ userBook }: HorizontalBookCardProps) => {
           </p>
         )}
       </div>
-      <div className="flex-shrink-0 flex items-center gap-3">
+      <div className="shrink-0 flex items-center gap-3">
         <Button
-          onClick={handleRemove}
+          onClick={handleRemoveClick}
           loading={isDeleting}
           disabled={isDeleting}
-          variant="outlined"
-          color="error"
-          size="small"
+          variant="outline"
+          size="icon"
           className="min-w-0 p-2"
         >
-          <DeleteIcon fontSize="small" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </div>
-    </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Book</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove &quot;{userBook.book.title}&quot;
+              from your books?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmRemove}
+              loading={isDeleting}
+              disabled={isDeleting}
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Tile>
   );
 };

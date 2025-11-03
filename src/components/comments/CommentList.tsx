@@ -1,16 +1,6 @@
+import { Tile } from "../ui/Tile";
 import { CommentItem } from "./CommentItem";
-
-interface Comment {
-  id: string;
-  content: string;
-  rating: number | null;
-  createdAt: Date;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
-}
+import type { Comment } from "./CommentItem";
 
 interface CommentListProps {
   comments: Comment[];
@@ -23,12 +13,12 @@ export const CommentList = ({
 }: CommentListProps) => {
   if (comments.length === 0) {
     return (
-      <div className="bg-stone-800 rounded-lg p-8 text-center">
+      <Tile className="text-center">
         <p className="text-gray-400 text-lg">No comments yet</p>
         <p className="text-gray-500 text-sm mt-2">
           Be the first to share your thoughts about this book!
         </p>
-      </div>
+      </Tile>
     );
   }
 

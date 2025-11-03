@@ -8,6 +8,8 @@ import { InfiniteScroll } from "../components/ui/InfiniteScroll";
 import { useBookSearch } from "../hooks/useBookSearch";
 import { useDebounce } from "../hooks/useDebounce";
 import { DEFAULT_SEARCH_QUERY } from "../constants/books";
+import { Search } from "lucide-react";
+import { useRouter } from "next/router";
 
 interface HomeProps {
   initialBooks: Book[];
@@ -26,6 +28,8 @@ const Home = ({ initialBooks }: HomeProps) => {
     isFetchingNextPage,
   } = useBookSearch(debouncedSearchQuery, initialBooks);
 
+  const router = useRouter();
+
   const sortedBooks = [...books].sort(
     (a: Book, b: Book) =>
       (b.volumeInfo?.averageRating || 0) - (a.volumeInfo?.averageRating || 0)
@@ -33,16 +37,26 @@ const Home = ({ initialBooks }: HomeProps) => {
 
   return (
     <Layout>
-      <div className="py-8">
-        <div className="w-full max-w-md flex justify-center mx-auto mb-8">
-          <TextInput
-            id="book-search"
-            label="Search book"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      <div className="py-8 grid gap-8">
+        <div className="grid gap-2">
+          <h1 className="text-2xl font-bold">Discover Books</h1>
+          <p className="text-slate-400">
+            Search our collection, add favorites, and share your reviews
+          </p>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <TextInput
+              id="book-search"
+              aria-label="Search book"
+              placeholder="Search books by title or author"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
 
+        {/* </div> */}
         {searchError && <ErrorMessage message={searchError} />}
 
         {isSearching ? (
@@ -68,7 +82,12 @@ const Home = ({ initialBooks }: HomeProps) => {
           >
             <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {sortedBooks.map((book: Book) => (
-                <BookCard key={book.id} book={book} />
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  size="medium"
+                  onClick={() => router.push(`/book/${book.id}`)}
+                />
               ))}
             </div>
           </InfiniteScroll>

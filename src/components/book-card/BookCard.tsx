@@ -1,10 +1,28 @@
-import BusinessIcon from "@mui/icons-material/Business";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import PersonIcon from "@mui/icons-material/Person";
-import Rating from "@mui/material/Rating";
+import { cn } from "@/lib/utils";
+import { User } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { ReadingStatusSelect } from "../ReadingStatusSelect";
+import { StarRating } from "../ui/StarRating";
+import { BookFeatures } from "./BookFeatures";
+
+const CARD_SIZE_MAP = {
+  medium: {
+    cardContainer: "h-[200px] grid-cols-[1fr_2fr]",
+    imageWidth: 120,
+    imageHeight: 180,
+    titleFontSize: "text-base",
+    maxStars: 1,
+  },
+  large: {
+    cardContainer: "h-[360px] grid-cols-[1fr_3fr]",
+    imageWidth: 180,
+    imageHeight: 270,
+    titleFontSize: "text-3xl",
+    maxStars: 5,
+  },
+};
 
 export interface Book {
   id: string;
@@ -25,16 +43,31 @@ export interface Book {
   };
 }
 
-export const BookCard = ({ book }: { book: Book }) => {
+interface BookCardProps {
+  book: Book;
+  size: keyof typeof CARD_SIZE_MAP;
+  showCategories?: boolean;
+  showReadingStatus?: boolean;
+  onClick?: () => void;
+}
+
+export const BookCard = ({
+  book,
+  size = "medium",
+  showCategories,
+  showReadingStatus,
+  onClick,
+}: BookCardProps) => {
   const router = useRouter();
 
-  const handleCardClick = () => {
-    router.push(`/book/${book.id}`);
-  };
+  const { data: session } = useSession();
 
   return (
-    <div className="h-[200px] flex rounded-lg bg-stone-800 shadow-sm">
-      <div className="p-2 m-auto">
+    <div
+      className={`${CARD_SIZE_MAP[size].cardContainer} grid rounded-lg bg-card border border-border shadow-sm`}
+    >
+      {/* Left Side */}
+      <div className="overflow-hidden">
         <Image
           src={
             book.volumeInfo.imageLinks
@@ -42,25 +75,34 @@ export const BookCard = ({ book }: { book: Book }) => {
               : "/imagen.png"
           }
           alt="Img description"
-          width={120}
-          height={180}
-          className="rounded-lg cursor-pointer object-cover w-full h-full"
-          onClick={handleCardClick}
+          width={CARD_SIZE_MAP[size].imageWidth}
+          height={CARD_SIZE_MAP[size].imageHeight}
+          className={cn(
+            "rounded-lg object-cover object-center w-full h-full",
+            onClick && "cursor-pointer"
+          )}
+          onClick={onClick}
         />
       </div>
-      <div className="w-3/4 flex flex-col">
-        <div className="px-2 pt-2 pb-0">
+
+      {/* Right Side */}
+      <div className="grid">
+        <div className="grid gap-4 p-3">
           <div className="grid gap-2">
+            {/* Title */}
             <h6
-              className="m-0 text-base font-semibold overflow-hidden text-ellipsis whitespace-nowrap cursor-pointer hover:text-amber-500"
-              onClick={handleCardClick}
+              className={cn(
+                `m-0 ${CARD_SIZE_MAP[size].titleFontSize} font-semibold overflow-hidden text-ellipsis whitespace-nowrap hover:text-primary`,
+                onClick && "cursor-pointer"
+              )}
+              onClick={onClick}
             >
               {book.volumeInfo.title}
             </h6>
 
             {/* Author */}
             <div className="flex items-center text-slate-400">
-              <PersonIcon className="text-amber-500 mr-2 text-sm" />
+              <User className="text-primary mr-2 h-4 w-4" />
               <p className="text-sm">
                 {book.volumeInfo.authors
                   ? book.volumeInfo.authors[0]
@@ -69,51 +111,52 @@ export const BookCard = ({ book }: { book: Book }) => {
             </div>
 
             {/* Publisher - publish date - pages*/}
-            <div className="grid grid-cols-3 justify-between mt-1 text-slate-300 text-xs overflow-hidden text-ellipsis whitespace-nowrap">
-              {book.volumeInfo.publisher && (
-                <div className="flex items-center">
-                  <BusinessIcon className="text-amber-500 mr-2 text-sm" />
-                  <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    {book.volumeInfo.publisher
-                      ? book.volumeInfo.publisher
-                      : "Unknown publisher"}
-                  </p>
-                </div>
-              )}
-              {book.volumeInfo.publishedDate && (
-                <div className="flex items-center mx-1">
-                  <CalendarTodayIcon className="text-amber-500 mr-2 text-sm" />
-                  <p className="overflow-hidden text-ellipsis whitespace-nowrap">
-                    {book.volumeInfo.publishedDate
-                      ? book.volumeInfo.publishedDate
-                      : "Unknown published date"}
-                  </p>
-                </div>
-              )}
-              {book.volumeInfo.pageCount && (
-                <div className="flex items-center mx-1">
-                  <MenuBookIcon className="text-amber-500 mr-2 text-sm" />
-                  <p>{book.volumeInfo.pageCount} pages</p>
-                </div>
-              )}
-            </div>
-            {/* Rating */}
-            <div className="flex items-center my-1 text-xs text-slate-400">
-              <Rating
-                name="size-small"
-                value={book.volumeInfo.averageRating}
-                size="small"
-                precision={0.5}
-                readOnly
-              />
-              {book.volumeInfo.averageRating && (
-                <p className="px-5">{book.volumeInfo.averageRating} avg rate</p>
-              )}
-              {book.volumeInfo.ratingsCount && (
-                <p className="px-5">{book.volumeInfo.ratingsCount} votes</p>
-              )}
-            </div>
+            <BookFeatures
+              publisher={book.volumeInfo.publisher}
+              publishedDate={book.volumeInfo.publishedDate}
+              pageCount={book.volumeInfo.pageCount}
+            />
           </div>
+
+          {/* Categories */}
+          {showCategories && book.volumeInfo.categories?.length > 0 && (
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2">
+                {book.volumeInfo.categories
+                  .slice(0, 3)
+                  .map((category: string, index: number) => (
+                    <span
+                      key={index}
+                      className="bg-primary text-black px-3 py-1 rounded-full text-sm font-medium"
+                    >
+                      {category}
+                    </span>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Rating */}
+          <StarRating
+            value={book.volumeInfo.averageRating || 0}
+            count={book.volumeInfo.ratingsCount || 0}
+            maxStars={CARD_SIZE_MAP[size].maxStars}
+            showLabel={true}
+            readOnly
+            size={size}
+          />
+
+          {/* Reading Status */}
+          {showReadingStatus && (
+            <div className="flex items-center">
+              <ReadingStatusSelect
+                bookId={book.id}
+                size="medium"
+                minWidth={200}
+                disabled={!session}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { trpc } from "../../utils/trpc";
 import { useSession } from "next-auth/react";
-import Rating from "@mui/material/Rating";
-import DeleteIcon from "@mui/icons-material/Delete";
-import PersonIcon from "@mui/icons-material/Person";
+import { Trash2 } from "lucide-react";
+import { User } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import Button from "../ui/Button";
+import { Button } from "../ui/Button";
+import type { inferQueryOutput } from "../../utils/trpc";
+import { Tile } from "../ui/Tile";
+import { StarRating } from "../ui/StarRating";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/Dialog";
 
-interface Comment {
-  id: string;
-  content: string;
-  rating: number | null;
-  createdAt: Date;
-  user: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  };
-}
+export type Comment =
+  inferQueryOutput<"books">["getBookDetails"]["comments"][number];
 
 interface CommentItemProps {
   comment: Comment;
@@ -27,26 +28,32 @@ interface CommentItemProps {
 export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
   const { data: session } = useSession();
   const [isDeleting, setIsDeleting] = useState(false);
-  const deleteCommentMutation = trpc.useMutation(["books.delete-comment"]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const deleteCommentMutation = trpc.books.deleteComment.useMutation();
 
-  const handleDelete = async () => {
-    if (window.confirm("Are you sure you want to delete this comment?")) {
-      setIsDeleting(true);
-      try {
-        await deleteCommentMutation.mutateAsync({ commentId: comment.id });
-        onDelete();
-      } catch (error) {
-        console.error("Failed to delete comment:", error);
-      } finally {
-        setIsDeleting(false);
-      }
+  const handleDeleteClick = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteCommentMutation.mutateAsync({ commentId: comment.id });
+      onDelete();
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to delete comment:", error);
+      // Keep dialog open on error so user can try again
+    } finally {
+      setIsDeleting(false);
     }
   };
 
-  const isOwner = session?.user?.id === comment.user.id;
+  // @ts-ignore
+  const isOwner = session?.user?.id === comment.userId;
 
   return (
-    <div className="bg-stone-800 rounded-lg p-4 mb-4">
+    <Tile>
       <div className="flex items-start justify-between">
         <div className="flex items-center space-x-3 mb-2">
           <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
@@ -58,7 +65,7 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
                 className="w-8 h-8 rounded-full"
               />
             ) : (
-              <PersonIcon className="text-gray-400" />
+              <User className="w-8 h-8 text-gray-400" />
             )}
           </div>
           <div>
@@ -75,27 +82,57 @@ export const CommentItem = ({ comment, onDelete }: CommentItemProps) => {
 
         {isOwner && (
           <Button
-            onClick={handleDelete}
+            onClick={handleDeleteClick}
             disabled={isDeleting}
-            variant="outlined"
+            variant="outline"
+            size="icon"
           >
-            <DeleteIcon className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" />
           </Button>
         )}
       </div>
 
       {comment.rating && (
         <div className="mb-2">
-          <Rating
+          <StarRating
             value={comment.rating}
+            size="medium"
             readOnly
-            size="small"
-            precision={0.5}
+            showLabel={false}
           />
         </div>
       )}
 
       <p className="text-gray-300 text-sm leading-relaxed">{comment.content}</p>
-    </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Comment</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this comment? This action cannot
+              be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              loading={isDeleting}
+              disabled={isDeleting}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Tile>
   );
 };

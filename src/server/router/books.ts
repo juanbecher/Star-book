@@ -1,14 +1,16 @@
-import { createRouter } from "./context";
+import { router, publicProcedure, protectedProcedure } from "./context";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
-export const booksRouter = createRouter()
+export const booksRouter = router({
   // Book details query
-  .query("get-book-details", {
-    input: z.object({
-      googleBooksId: z.string(),
-    }),
-    async resolve({ ctx, input }) {
+  getBookDetails: publicProcedure
+    .input(
+      z.object({
+        googleBooksId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
       // First try to get from our database
       let book = await ctx.prisma.book.findUnique({
         where: {
@@ -104,17 +106,15 @@ export const booksRouter = createRouter()
       }
 
       return book;
-    },
-  })
-  .query("get-user-book-status", {
-    input: z.object({
-      bookId: z.string(),
     }),
-    async resolve({ ctx, input }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        return { state: "" };
-      }
 
+  getUserBookStatus: protectedProcedure
+    .input(
+      z.object({
+        bookId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
       const userBook = await ctx.prisma.userXBook.findFirst({
         where: {
           userId: ctx.session.user.id,
@@ -126,44 +126,30 @@ export const booksRouter = createRouter()
       });
 
       return { state: userBook?.state || "" };
-    },
-  })
+    }),
 
   // User x Book mutations
-  .query("get-user-books", {
-    async resolve({ ctx }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
+  getUserBooks: protectedProcedure.query(async ({ ctx }) => {
+    const books = await ctx.prisma.userXBook.findMany({
+      where: {
+        userId: ctx.session.user.id,
+      },
+      include: {
+        book: true,
+      },
+    });
 
-      const books = await ctx.prisma.userXBook.findMany({
-        where: {
-          userId: ctx.session.user.id,
-        },
-        include: {
-          book: true,
-        },
-      });
+    return books;
+  }),
 
-      return books;
-    },
-  })
-  .mutation("save-user-book", {
-    input: z.object({
-      bookId: z.string(),
-      book_state: z.string(),
-    }),
-    async resolve({ ctx, input }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
+  saveUserBook: protectedProcedure
+    .input(
+      z.object({
+        bookId: z.string(),
+        book_state: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
       // Check if user already has this book
       const existingUserBook = await ctx.prisma.userXBook.findFirst({
         where: {
@@ -195,20 +181,15 @@ export const booksRouter = createRouter()
       }
 
       return user_book;
-    },
-  })
-  .mutation("remove-user-book", {
-    input: z.object({
-      userBookId: z.string(),
     }),
-    async resolve({ ctx, input }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
 
+  removeUserBook: protectedProcedure
+    .input(
+      z.object({
+        userBookId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
       // Check if user owns the book
       const userBook = await ctx.prisma.userXBook.findUnique({
         where: { id: input.userBookId },
@@ -227,24 +208,18 @@ export const booksRouter = createRouter()
       });
 
       return { success: true };
-    },
-  })
+    }),
 
   // Comment mutations
-  .mutation("add-comment", {
-    input: z.object({
-      bookId: z.string(),
-      content: z.string().min(1, "Comment cannot be empty"),
-      rating: z.number().min(1).max(5).optional(),
-    }),
-    async resolve({ ctx, input }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
+  addComment: protectedProcedure
+    .input(
+      z.object({
+        bookId: z.string(),
+        content: z.string().min(1, "Comment cannot be empty"),
+        rating: z.number().min(1).max(5).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
       const comment = await ctx.prisma.comment.create({
         data: {
           content: input.content,
@@ -264,20 +239,15 @@ export const booksRouter = createRouter()
       });
 
       return comment;
-    },
-  })
-  .mutation("delete-comment", {
-    input: z.object({
-      commentId: z.string(),
     }),
-    async resolve({ ctx, input }) {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
 
+  deleteComment: protectedProcedure
+    .input(
+      z.object({
+        commentId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
       // Check if user owns the comment
       const comment = await ctx.prisma.comment.findUnique({
         where: { id: input.commentId },
@@ -296,5 +266,5 @@ export const booksRouter = createRouter()
       });
 
       return { success: true };
-    },
-  });
+    }),
+});
