@@ -1,4 +1,4 @@
-import { router, publicProcedure } from "./context";
+import { router, publicProcedure, protectedProcedure } from "./context";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
@@ -108,17 +108,13 @@ export const booksRouter = router({
       return book;
     }),
 
-  getUserBookStatus: publicProcedure
+  getUserBookStatus: protectedProcedure
     .input(
       z.object({
         bookId: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
-      if (!ctx.session || !ctx.session.user?.id) {
-        return { state: "" };
-      }
-
       const userBook = await ctx.prisma.userXBook.findFirst({
         where: {
           userId: ctx.session.user.id,
@@ -133,14 +129,7 @@ export const booksRouter = router({
     }),
 
   // User x Book mutations
-  getUserBooks: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.session || !ctx.session.user?.id) {
-      throw new TRPCError({
-        message: "You are not signed in",
-        code: "UNAUTHORIZED",
-      });
-    }
-
+  getUserBooks: protectedProcedure.query(async ({ ctx }) => {
     const books = await ctx.prisma.userXBook.findMany({
       where: {
         userId: ctx.session.user.id,
@@ -153,7 +142,7 @@ export const booksRouter = router({
     return books;
   }),
 
-  saveUserBook: publicProcedure
+  saveUserBook: protectedProcedure
     .input(
       z.object({
         bookId: z.string(),
@@ -161,13 +150,6 @@ export const booksRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
       // Check if user already has this book
       const existingUserBook = await ctx.prisma.userXBook.findFirst({
         where: {
@@ -201,20 +183,13 @@ export const booksRouter = router({
       return user_book;
     }),
 
-  removeUserBook: publicProcedure
+  removeUserBook: protectedProcedure
     .input(
       z.object({
         userBookId: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
       // Check if user owns the book
       const userBook = await ctx.prisma.userXBook.findUnique({
         where: { id: input.userBookId },
@@ -236,7 +211,7 @@ export const booksRouter = router({
     }),
 
   // Comment mutations
-  addComment: publicProcedure
+  addComment: protectedProcedure
     .input(
       z.object({
         bookId: z.string(),
@@ -245,13 +220,6 @@ export const booksRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
       const comment = await ctx.prisma.comment.create({
         data: {
           content: input.content,
@@ -273,20 +241,13 @@ export const booksRouter = router({
       return comment;
     }),
 
-  deleteComment: publicProcedure
+  deleteComment: protectedProcedure
     .input(
       z.object({
         commentId: z.string(),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session || !ctx.session.user?.id) {
-        throw new TRPCError({
-          message: "You are not signed in",
-          code: "UNAUTHORIZED",
-        });
-      }
-
       // Check if user owns the comment
       const comment = await ctx.prisma.comment.findUnique({
         where: { id: input.commentId },
